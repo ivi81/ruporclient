@@ -4,15 +4,14 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 
 	"strconv"
-	"time"
 
 	"gitlab.cloud.gcm/i.ippolitov/debugging"
 	"gitlab.cloud.gcm/i.ippolitov/go-ruporclient/rupor/api/param"
 	"gitlab.cloud.gcm/i.ippolitov/go-ruporclient/rupor/api/resp"
+	"gitlab.cloud.gcm/i.ippolitov/go-servicelogger/logger"
 )
 
 //
@@ -91,8 +90,8 @@ func (c *RuporApiClient) DoGet(handler func(*http.Response) (*resp.Response, err
 		return nil, err
 	}
 
-	log.Printf("%s : NEXT GET-request", time.Now().Format(time.UnixDate))
 	response, err := c.Client.Do(c.GetReq)
+	//log.Printf("%s : send next GET-request", time.Now().Format(time.UnixDate))
 	if err != nil {
 		err := fmt.Errorf("%s : %s", debugging.GetFuncName(), err.Error())
 		return nil, err
@@ -102,4 +101,39 @@ func (c *RuporApiClient) DoGet(handler func(*http.Response) (*resp.Response, err
 
 func (c *RuporApiClient) DoPost() error {
 	return nil
+}
+
+//GetRequest осуществляет GET-запрос к указанному URI и порционный возврат результата
+//endPoint - URI api rupor
+//getParams - параметры фильтрации докумнтов
+//out - канал в который отправляются результаты запроса
+func (c *RuporApiClient) GetRequest(ctx context.Context, endPoint string, getParams param.GetParametrs, out chan<- []json.RawMessage, endSignalCh chan<- struct{}, logg *logger.Logger) {
+
+	var (
+		response *resp.Response
+		err      error
+	)
+
+	for {
+		c.NewGetRequest(ctx, endPoint, nil, &getParams)
+		logg.Debugf("new GET-request URI: %s, docs offset: %s", endPoint, getParams.Offset)
+		if response, err = c.DoGet(resp.Handler); err != nil || response.Data.IsEmpty() {
+
+			//	getParams.Offset = 0
+			if err != nil {
+				logg.Error(err.Error())
+			}
+			break
+		}
+
+		out <- response.Data.Result
+		logg.Debugf("new GET-response URI: %s, docs offset: %s, docs count: %s was send to chanel", endPoint, getParams.Offset, len(response.Data.Result))
+		if !response.Data.Next {
+			logg.Debugf("complite GET-request UDI: %s, docs offset: %s", endPoint, getParams.Offset)
+			//	docParams.Offset = 0
+			break
+		}
+		getParams.Offset = getParams.Offset + len(response.Data.Result)
+	}
+	endSignalCh <- struct{}{}
 }
