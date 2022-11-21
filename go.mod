@@ -5,8 +5,8 @@ go 1.18
 require (
 	github.com/tidwall/gjson v1.14.3
 	gitlab.cloud.gcm/i.ippolitov/debugging v0.0.0-20221109122848-69aca373a7b8
-	gitlab.cloud.gcm/i.ippolitov/go-microconfig v0.1.1
-	gitlab.cloud.gcm/i.ippolitov/go-servicelogger v0.0.0-20221117143735-2d694183e844
+	gitlab.cloud.gcm/i.ippolitov/go-microconfig v0.0.0-20221121102624-6d46879ab1e0
+	gitlab.cloud.gcm/i.ippolitov/go-servicelogger v0.0.0-20221121103343-9a69ea9faf78
 )
 
 require (
