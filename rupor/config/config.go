@@ -11,5 +11,6 @@ type RuporClientCfg struct {
 //SetValuesFromEnv загружает значение перменных среды которые имеют префикс заданный в envPrefix
 //в структуру ServiceLoggerCfg
 func (cfg *RuporClientCfg) SetValuesFromEnv(envPrefix string) {
-	cfg.ClientHttpCfg.SetValuesFromEnv(envPrefix)
+	envPref := microconfig.JoinStr(envPrefix, RuporPrefix)
+	cfg.ClientHttpCfg.SetValuesFromEnv(envPref)
 }
