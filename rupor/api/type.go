@@ -116,7 +116,7 @@ func (c *RuporApiClient) GetRequest(ctx context.Context, endPoint string, getPar
 
 	for {
 		c.NewGetRequest(ctx, endPoint, nil, &getParams)
-		logg.Debugf("new GET-request URI: %s, docs offset: %s", endPoint, getParams.Offset)
+		logg.Debugf("new GET-request URI: %s, docs offset: %d", endPoint, getParams.Offset)
 		if response, err = c.DoGet(resp.Handler); err != nil || response.Data.IsEmpty() {
 
 			//	getParams.Offset = 0
@@ -127,9 +127,9 @@ func (c *RuporApiClient) GetRequest(ctx context.Context, endPoint string, getPar
 		}
 
 		out <- response.Data.Result
-		logg.Debugf("new GET-response URI: %s, docs offset: %s, docs count: %s was send to chanel", endPoint, getParams.Offset, len(response.Data.Result))
+		logg.Debugf("new GET-response URI: %s, docs offset: %d, docs count: %d was send to chanel", endPoint, getParams.Offset, len(response.Data.Result))
 		if !response.Data.Next {
-			logg.Debugf("complite GET-request UDI: %s, docs offset: %s", endPoint, getParams.Offset)
+			logg.Debugf("complite GET-request URI: %s, docs offset: %d", endPoint, getParams.Offset)
 			//	docParams.Offset = 0
 			break
 		}
