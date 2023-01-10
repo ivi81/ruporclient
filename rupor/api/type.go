@@ -108,7 +108,7 @@ func (c *RuporApiClient) DoPost() error {
 //endPoint - URI api rupor
 //getParams - параметры фильтрации докумнтов
 //out - канал в который отправляются результаты запроса
-func (c *RuporApiClient) GetRequest(ctx context.Context, endPoint string, getParams param.GetParametrs, out chan<- []json.RawMessage, endSignalCh chan<- struct{}, logg *logger.Logger) {
+func (c *RuporApiClient) GetRequest(ctx context.Context, endPoint string, getParams param.GetParametrs, out chan<- []json.RawMessage, endSignalCh chan<- struct{}) {
 
 	var (
 		response *resp.Response
