@@ -11,7 +11,7 @@ import (
 	"gitlab.cloud.gcm/i.ippolitov/debugging"
 	"gitlab.cloud.gcm/i.ippolitov/go-ruporclient/rupor/api/param"
 	"gitlab.cloud.gcm/i.ippolitov/go-ruporclient/rupor/api/resp"
-	"gitlab.cloud.gcm/i.ippolitov/go-servicelogger/logger"
+	"gitlab.cloud.gcm/i.ippolitov/go-ruporclient/rupor/logger"
 )
 
 //
@@ -21,6 +21,7 @@ type RuporApiClient struct {
 	GetReq  *http.Request
 	PostReq http.Request
 	Url     string
+	log     logger.Logger
 }
 
 //NewGetRequest метод RuporApiClient создает новый объект  Get-запроса
@@ -116,20 +117,20 @@ func (c *RuporApiClient) GetRequest(ctx context.Context, endPoint string, getPar
 
 	for {
 		c.NewGetRequest(ctx, endPoint, nil, &getParams)
-		logg.Debugf("new GET-request URI: %s, docs offset: %d", endPoint, getParams.Offset)
+		c.log.Debugf("new GET-request URI: %s, docs offset: %d", endPoint, getParams.Offset)
 		if response, err = c.DoGet(resp.Handler); err != nil || response.Data.IsEmpty() {
 
 			//	getParams.Offset = 0
 			if err != nil {
-				logg.Error(err.Error())
+				c.log.Error(err.Error())
 			}
 			break
 		}
 
 		out <- response.Data.Result
-		logg.Debugf("new GET-response URI: %s, docs offset: %d, docs count: %d was send to chanel", endPoint, getParams.Offset, len(response.Data.Result))
+		c.log.Debugf("new GET-response URI: %s, docs offset: %d, docs count: %d was send to chanel", endPoint, getParams.Offset, len(response.Data.Result))
 		if !response.Data.Next {
-			logg.Debugf("complite GET-request URI: %s, docs offset: %d", endPoint, getParams.Offset)
+			c.log.Debugf("complite GET-request URI: %s, docs offset: %d", endPoint, getParams.Offset)
 			//	docParams.Offset = 0
 			break
 		}

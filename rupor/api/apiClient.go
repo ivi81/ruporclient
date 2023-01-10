@@ -6,10 +6,11 @@ import (
 	"net/http"
 
 	"gitlab.cloud.gcm/i.ippolitov/go-ruporclient/rupor/config"
+	"gitlab.cloud.gcm/i.ippolitov/go-ruporclient/rupor/logger"
 )
 
 //NewApiClient создает и настраивает клиент API Rupor-a
-func NewApiClient(cfg *config.RuporClientCfg) (RuporApiClient, error) {
+func NewApiClient(cfg *config.RuporClientCfg, logg logger.Logger) (RuporApiClient, error) {
 
 	tr := &http.Transport{
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
