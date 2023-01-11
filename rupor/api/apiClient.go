@@ -20,6 +20,7 @@ func NewApiClient(cfg *config.RuporClientCfg, logg logger.Logger) (RuporApiClien
 		Url:    cfg.Host,
 		Client: http.Client{Transport: tr},
 		Header: *createHeader(cfg),
+		log:    logg,
 	}
 	return c, nil
 }
