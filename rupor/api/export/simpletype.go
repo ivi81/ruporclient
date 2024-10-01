@@ -4,12 +4,12 @@ import (
 	"fmt"
 
 	"github.com/tidwall/gjson"
-	"gitlab.cloud.gcm/i.ippolitov/go-ruporclient/rupor/api/cons"
+	cons "gitlab.cloud.gcm/i.ippolitov/go-ruporclient/rupor/api/cons"
 )
 
 const timeLayout = "2022-06-20T16:36:28.000Z"
 
-//Company Краткое наименование организации являющейся субъектом ГосСОПКА "АО \"Ромашка\""
+// Company Краткое наименование организации являющейся субъектом ГосСОПКА "АО \"Ромашка\""
 type Company CustomString
 
 type Location struct {
@@ -45,7 +45,7 @@ type Location struct {
 //Country Название страны
 //type Country string
 
-//Malware Информаци об вредоносной системе
+// Malware Информаци об вредоносной системе
 type Malware struct {
 	Function cons.MalwareFunc `json:"function"`
 	Sinkhole bool             `json:"sinkhole"`
@@ -72,7 +72,7 @@ type Malware struct {
 //Path "AS-Path до атакованной Автономной системы (ASN)"
 //type Path string
 
-//ProdInfo  "Наименование и версия уязвимого продукта"
+// ProdInfo  "Наименование и версия уязвимого продукта"
 type ProdInfo struct {
 	Name    string `json:"name"`
 	Version string `json:"version"`
@@ -81,7 +81,7 @@ type ProdInfo struct {
 //VulnId Идентификатор уязвимости "CVE-2020-1231"
 //type VulnId string
 
-//CustomString нужен для выбора поля name из вложенного JSON, остальные поля игнорируются
+// CustomString нужен для выбора поля name из вложенного JSON, остальные поля игнорируются
 type CustomString string
 
 func (s *CustomString) UnmarshalJSON(data []byte) error {

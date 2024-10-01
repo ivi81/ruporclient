@@ -14,7 +14,6 @@ import (
 	"gitlab.cloud.gcm/i.ippolitov/go-ruporclient/rupor/logger"
 )
 
-//
 type RuporApiClient struct {
 	Client  http.Client
 	Header  http.Header
@@ -24,7 +23,7 @@ type RuporApiClient struct {
 	log     logger.Logger
 }
 
-//NewGetRequest метод RuporApiClient создает новый объект  Get-запроса
+// NewGetRequest метод RuporApiClient создает новый объект  Get-запроса
 func (c *RuporApiClient) NewGetRequest(ctx context.Context, uri string, header http.Header, params *param.GetParametrs) error {
 
 	var (
@@ -52,6 +51,7 @@ func (c *RuporApiClient) NewGetRequest(ctx context.Context, uri string, header h
 			if b, err = json.Marshal(params.Filter); err != nil {
 				return fmt.Errorf("%s : %s", debugging.GetFuncName(), err.Error())
 			}
+
 			query.Add("filter", fmt.Sprintf(string(b)))
 		}
 		if len(params.Projection) != 0 {
@@ -72,18 +72,19 @@ func (c *RuporApiClient) NewGetRequest(ctx context.Context, uri string, header h
 		if params.Offset != 0 {
 			query.Add("offset", strconv.Itoa(params.Offset))
 		}
+
 		req.URL.RawQuery = query.Encode()
 	}
 	c.GetReq = req
 	return nil
 }
 
-//NewPostRequest метод RuporApiClient создает новый объект  Post-запроса
+// NewPostRequest метод RuporApiClient создает новый объект  Post-запроса
 func (c *RuporApiClient) NewPostRequest() error {
 	return nil
 }
 
-//DoGet выполняет Get-запрос к Api Rupor-а
+// DoGet выполняет Get-запрос к Api Rupor-а
 func (c *RuporApiClient) DoGet(handler func(*http.Response) (*resp.Response, error)) (*resp.Response, error) {
 
 	if c.GetReq.URL.Path == "" {
@@ -104,10 +105,10 @@ func (c *RuporApiClient) DoPost() error {
 	return nil
 }
 
-//GetRequest осуществляет GET-запрос к указанному URI и порционный возврат результата
-//endPoint - URI api rupor
-//getParams - параметры фильтрации докумнтов
-//out - канал в который отправляются результаты запроса
+// GetRequest осуществляет GET-запрос к указанному URI и порционный возврат результата
+// endPoint - URI api rupor
+// getParams - параметры фильтрации докумнтов
+// out - канал в который отправляются результаты запроса
 func (c *RuporApiClient) GetRequest(ctx context.Context, endPoint string, getParams param.GetParametrs, out chan<- []json.RawMessage, endSignalCh chan<- struct{}) {
 
 	var (
