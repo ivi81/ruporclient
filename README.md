@@ -1,5 +1,15 @@
 **Клиентская библиотека на golang для RUPOR (R-Vision)**
 
+**Установка данного модуля**:
+  * Установка последней версии
+      *go get gitlab.cloud.gcm/i.ippolitov/go-ruporclient*
+  * Установка конкретной версии 
+      *go get gitlab.cloud.gcm/i.ippolitov/go-ruporclient@tag_num*
+  * Установка вместе с последним коммитом из main 
+     *go get gitlab.cloud.gcm/i.ippolitov/go-ruporclient@main*
+  * Обновление до последней минорной версии
+     *go get -u gitlab.cloud.gcm/i.ippolitov/go-ruporclient*
+
 Структура проекта:
 ```
 ├── config
