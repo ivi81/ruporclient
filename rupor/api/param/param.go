@@ -1,6 +1,6 @@
 package param
 
-//GetParametrs параметры GET-запроса к API рупор-а
+// GetParametrs параметры GET-запроса к API рупор-а
 type GetParametrs struct {
 	Filter     Filter
 	Sort       Sort
