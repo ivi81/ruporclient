@@ -153,12 +153,12 @@ func (c *RuporApiClient) GetRequest(ctx context.Context, endPoint string, getPar
 	endSignalCh <- struct{}{}
 }
 
-//	PostRequest - осуществляет GET-запрос к указанному URI
+//	PostRequest - осуществляет POST-запрос к указанному URI
 //
 //	Параметры:
 //
 // endPoint - URI api rupor
-// body - тедло запроса
+// body - тело запроса
 func (c *RuporApiClient) PostRquest(ctx context.Context, endPoint string, body io.Reader) []json.RawMessage {
 	var (
 		response *resp.Response
