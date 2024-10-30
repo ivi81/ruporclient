@@ -68,7 +68,7 @@ func (c *RuporApiClient) NewPostRequest(ctx context.Context, uri string, header 
 
 	url := fmt.Sprintf("http://%s/%s/", c.Url, uri)
 
-	if req, err = http.NewRequestWithContext(ctx, http.MethodGet, url, body); err != nil {
+	if req, err = http.NewRequestWithContext(ctx, http.MethodPost, url, body); err != nil {
 		return fmt.Errorf("%s : %s", debugging.GetFuncName(), err.Error())
 	}
 

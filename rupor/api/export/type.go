@@ -44,12 +44,22 @@ type Notification struct {
 
 }
 
-// Comment коментарий к карточке Уведоления или Сообщения
+// RespComment коментарий к карточке Уведоления или Сообщения
+type RespComment struct {
+	Id         int       `json:"id"`
+	IncUuid    string    `json:"incident.uuid"`
+	Text       string    `json:"text"`
+	Login      string    `josn:"login"`
+	IncidentId string    `json:"incident.id"`
+	CreateTime time.Time `json:"create_time"`
+}
+
+// Comment добавляемый новый коментарий к карточке Уведоления или Сообщения
 type Comment struct {
-	Id         int       `json: "id"`
-	IncUuid    string    `json: "incident.uuid"`
-	Text       string    `json: "text"`
-	Login      string    `josn: "login"`
-	IncidentId string    `json: "incident.id"`
-	CreateTime time.Time `json: "create_time"`
+	IncUuid string      `json:"incident.uuid"`
+	Data    CommentText `json:"data"`
+}
+
+type CommentText struct {
+	Comment string `json:"comment"`
 }
