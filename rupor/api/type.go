@@ -20,7 +20,7 @@ type RuporApiClient struct {
 	Client  http.Client
 	Header  http.Header
 	GetReq  *http.Request
-	PostReq http.Request
+	PostReq *http.Request
 	Url     string
 	log     logger.Logger
 }
@@ -79,6 +79,7 @@ func (c *RuporApiClient) NewPostRequest(ctx context.Context, uri string, header 
 		req.Header = c.Header
 	}
 
+	c.PostReq = req
 	return nil
 }
 
@@ -106,7 +107,7 @@ func (c *RuporApiClient) DoPost(handler func(*http.Response) (*resp.Response, er
 		return nil, err
 	}
 
-	response, err := c.Client.Do(&c.PostReq)
+	response, err := c.Client.Do(c.PostReq)
 	//log.Printf("%s : send next GET-request", time.Now().Format(time.UnixDate))
 	if err != nil {
 		err := fmt.Errorf("%s : %s", debugging.GetFuncName(), err.Error())
