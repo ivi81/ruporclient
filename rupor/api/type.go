@@ -142,7 +142,13 @@ func (c *RuporApiClient) GetRequest(ctx context.Context, endPoint string, getPar
 			break
 		}
 
-		out <- response.Data.Result
+		select {
+		case <-ctx.Done():
+			return
+		default:
+			out <- response.Data.Result
+		}
+
 		c.log.Debugf("new GET-response URI: %s, docs offset: %d, docs count: %d was send to chanel", endPoint, getParams.Offset, len(response.Data.Result))
 		if !response.Data.Next {
 			c.log.Debugf("complite GET-request URI: %s, docs offset: %d", endPoint, getParams.Offset)
