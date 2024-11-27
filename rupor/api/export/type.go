@@ -16,6 +16,7 @@ type CommonObj struct {
 	Ownername        string       `json:"ownername"`         //Владелец информационного ресурса
 	EventDescription string       `json:"event_description"` //Краткое описание события ИБ
 	RegNumber        string       `json:"reg_number"`        //Регистрационный номер
+	Identifier       string       `json:"identifier"`        //идентификатор в web-интерфейсе
 	Status           CustomString `json:"status"`            //Статус документа (у каждого типа документов свой статус)
 	Tlp              CustomString `json:"tlp"`               //Ограничительный маркер TLP
 	Type             CustomString `json :"type"`             //Тип события ИБ
