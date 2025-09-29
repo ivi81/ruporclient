@@ -6,8 +6,8 @@ import (
 	"fmt"
 
 	"github.com/tidwall/gjson"
-	"gitlab.cloud.gcm/i.ippolitov/go-ruporclient/rupor/api/cons"
-	"gitlab.cloud.gcm/i.ippolitov/go-ruporclient/rupor/api/export"
+	"gitlab.cloud.gcm/i.ippolitov/go-ruporclient/rupor/cons"
+	"gitlab.cloud.gcm/i.ippolitov/go-ruporclient/rupor/export"
 )
 
 // NkckiGetResp ответ на GET-запрос к Rupor

@@ -1,0 +1,2571 @@
+openapi: 3.0.0
+info:
+  title: Личный кабинет ГосСОПКА
+  description: >-
+    Описание публичного API Личного кабинета ГосСОПКА. Работа с уведомлениями о компьютерном инциденте (далее - КИ)/компьютерной атаке
+    (далее - КА), направляемыми от субъектов ГосСОПКА в адрес НКЦКИ.
+  version: 1.1.1
+servers:
+  - url: https://lk.cert.gov.ru/api/v2
+    description: "Личный кабинет"
+  - url: https://test-lk.cert.gov.ru/api/v2
+    description: "Тестовый Личный кабинет"
+  
+paths:
+  /incidents:
+    post:
+      tags:
+        - "Уведомления"
+      summary: Создание/изменение карточки уведомления о КИ/КА
+      description: >-
+        Перечислены запросы, которые создают новое уведомление о КИ/КА в ЛК, добавляют файлы в карточку уведомления, изменения
+        /добавляют данные по текущему уведомлению.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              anyOf:
+              - $ref: '#/components/schemas/NewNotificationCInotNet'
+              - $ref: '#/components/schemas/NewNotificationCI'
+              - $ref: '#/components/schemas/NewNotificationCAnotNet'
+              - $ref: '#/components/schemas/NewNotificationCA'
+              - $ref: '#/components/schemas/AdditionDataCI'
+              - $ref: '#/components/schemas/AdditionDataCACV'
+              - $ref: '#/components/schemas/NewNotificationRKN'
+            examples:
+              one:
+                summary: Создание уведомления о КИ (форма без технических сведений о субъекте/объекте инцидента)
+                description: >-
+                  Данный запрос с общим набором полей производится или когда атакованный объект (по которому осуществляется информирование НКЦКИ) не имеет доступа в сеть интернет (в этом случае ключу "affected_system_Connection" присваивается значение "false") или когда атакованный объект (по которому осуществляется информирование НКЦКИ) имеет доступ в сеть интернет, но на момент информирования НКЦКИ данных по вредоносной системе нет (в этом случае ключу "affected_system_Connection" присваивается значение "true").
+                value: {
+                        "company": "АО \"Ромашка\"",
+                        "category": "Уведомление о компьютерном инциденте",
+                        "type": "Заражение ВПО",
+                        "owner_name": "АО \"Ромашка\"",
+                        "activity_status": "Проводятся мероприятия по реагированию",
+                        "assistance": true,
+                        "event_description": "тестовое уведомление",
+                        "detection_tool": "WAF",
+                        "detect_time": "2020-08-17T15:22:52Z",
+                        "end_time": "2020-08-17T20:33:11Z",
+                        "tlp": "TLP:GREEN",
+                        "availability_impact": "Отсутствует",
+                        "integrity_impact": "Низкое",
+                        "confidentiality_impact": "Высокое",
+                        "custom_impact": "больше не было других влияний",
+                        "affected_system_name": "ДБО ФЛ",
+                        "affected_system_category": "Объект КИИ без категории значимости",
+                        "affected_system_function": "Банковская сфера и иные сферы финансового рынка",
+                        "affected_system_connection": false,
+                        "location": "RU-KYA",
+                        "city": "Красноярск"
+                  }
+              two:
+                summary: Создание уведомления о КИ (форма с техническими сведениями о субъекте/объекте инцидента)
+                description: >-
+                  Данный запрос с полным набором полей производится, когда атакованный объект (по которому осуществляется
+                  информирование НКЦКИ) имеет доступа в сеть интернет и на момент информирования НКЦКИ данные по вредоносной системе
+                  имеются. В этом случае ключу "affected_system_Connection" присваивается значение "true" и запрос передается с
+                  техническими сведениями о субъекте/объекте инцидента.
+                value: {
+                        "company": "АО \"Ромашка\"",
+                        "category": "Уведомление о компьютерном инциденте",
+                        "type": "Заражение ВПО",
+                        "owner_name": "АО \"Ромашка\"",
+                        "activity_status": "Проводятся мероприятия по реагированию",
+                        "assistance": true,
+                        "event_description": "тестовое уведомление",
+                        "detection_tool": "WAF",
+                        "detect_time": "2020-08-17T15:22:52Z",
+                        "end_time": "2020-08-17T20:33:11Z",
+                        "tlp": "TLP:GREEN",
+                        "availability_impact": "Отсутствует",
+                        "integrity_impact": "Низкое",
+                        "confidentiality_impact": "Высокое",
+                        "custom_impact": "больше не было других влияний",
+                        "affected_system_name": "ДБО ФЛ",
+                        "affected_system_category": "Объект КИИ без категории значимости",
+                        "affected_system_function": "Банковская сфера и иные сферы финансового рынка",
+                        "affected_system_connection": true,
+                        "location": "RU-KYA",
+                        "city": "Красноярск",
+                        "related_observables_ipv4": [
+                          {
+                            "value": "12.12.12.12"
+                          }
+                        ],
+                        "related_observables_ipv6": [
+                          {
+                            "value": "9090:5ffd:695e:fec4:8ecf:8bd0:e2d9:37e6"
+                          }
+                        ],
+                        "related_observables_domain": [
+                          {
+                            "value": "dbo.rmhk.ru"
+                          }
+                        ],
+                        "related_observables_uri": [
+                          {
+                            "value": "https://dbo.rmhk.ru//fl"
+                          }
+                        ],
+                        "related_observables_email": [
+                          {
+                            "value": "ivanovmn@rmhk.ru"
+                          }
+                        ],
+                        "related_observables_service": [
+                          {
+                            "name": "веб",
+                            "value": "443/TCP"
+                          }
+                        ],
+                        "related_indicators_ipv4": [
+                          {
+                            "function": "Центр управления ВПО",
+                            "value": "5.5.5.5"
+                          }
+                        ],
+                        "related_indicators_ipv6": [
+                          {
+                            "function": "Источник распространения ВПО",
+                            "value": "FF02:0:0:0:0:1:FF00"
+                          }
+                        ],
+                        "related_indicators_domain": [
+                          {
+                            "function": "Источник распространения ВПО",
+                            "value": "badboy.ru"
+                          }
+                        ],
+                        "related_indicators_uri": [
+                          {
+                            "function": "Источник распространения ВПО",
+                            "value": "https://badboy.com//efweW42ERFSA"
+                          }
+                        ],
+                        "related_indicators_email": [
+                          {
+                            "value": "admin@badboy.com"
+                          }
+                        ],
+                        "malware_hash": [
+                          {
+                            "value": "837b05ef39ba55332d5ec44804e2daa0"
+                          }
+                        ],
+                        "related_indicators_vuln": [
+                          {
+                            "value": "такая-то уязвимость была задействована"
+                          }
+                        ]
+                  }
+              three:
+                summary: Создание уведомления о КА (форма без технических сведений о субъекте/объекте инцидента)
+                description: >-
+                  Данный запрос с общим набором полей производится или когда атакованный объект (по которому осуществляется
+                  информирование НКЦКИ) не имеет доступа в сеть интернет (в этом случае ключу "affected_system_Connection" присваивается
+                  значение "false") или когда атакованный объект (по которому осуществляется информирование НКЦКИ) имеет доступ в
+                  сеть интернет, но на момент информирования НКЦКИ данных по вредоносной системе нет (в этом случае ключу
+                  "affected_system_Connection" присваивается значение "true").
+                value: {
+                        "company": "АО \"Ромашка\"",
+                        "category": "Уведомление о компьютерной атаке",
+                        "type": "DDoS-атака",
+                        "owner_name": "АО \"Ромашка\"",
+                        "activity_status": "Проводятся мероприятия по реагированию",
+                        "assistance": true,
+                        "event_description": "тестовое уведомление",
+                        "detection_tool": "ARBOR",
+                        "detect_time": "2020-08-17T15:22:52Z",
+                        "end_time": "2020-08-17T20:33:11Z",
+                        "tlp": "TLP:GREEN",
+                        "affected_system_name": "ДБО ФЛ",
+                        "affected_system_category": "Объект КИИ без категории значимости",
+                        "affected_system_function": "Банковская сфера и иные сферы финансового рынка",
+                        "affected_system_connection": false,
+                        "location": "RU-KYA",
+                        "city": "Красноярск"
+                  }
+              four:
+                summary: Создание уведомления о КА (форма с техническими сведениями о субъекте/объекте инцидента)
+                description: >-
+                  Данный запрос с полным набором полей производится, когда атакованный объект (по которому осуществляется
+                  информирование НКЦКИ) имеет доступа в сеть интернет и на момент информирования НКЦКИ данные по вредоносной системе
+                  имеются. В этом случае ключу "affected_system_Connection" присваивается значение "true" и запрос передается с
+                  техническими сведениями о субъекте/объекте инцидента.
+                value: {
+                        "company": "АО \"Ромашка\"",
+                        "category": "Уведомление о компьютерной атаке",
+                        "type": "DDoS-атака",
+                        "owner_name": "АО \"Ромашка\"",
+                        "activity_status": "Проводятся мероприятия по реагированию",
+                        "assistance": true,
+                        "event_description": "тестовое уведомление",
+                        "detection_tool": "ARBOR",
+                        "detect_time": "2020-08-17T15:22:52Z",
+                        "end_time": "2020-08-17T20:33:11Z",
+                        "tlp": "TLP:GREEN",
+                        "affected_system_name": "ДБО ФЛ",
+                        "affected_system_category": "Объект КИИ без категории значимости",
+                        "affected_system_function": "Банковская сфера и иные сферы финансового рынка",
+                        "affected_system_connection": true,
+                        "location": "RU-KYA",
+                        "city": "Красноярск",
+                        "related_observables_ipv4": [
+                          {
+                            "value": "12.12.12.12"
+                          }
+                        ],
+                        "related_observables_ipv6": [
+                          {
+                            "value": "9090:5ffd:695e:fec4:8ecf:8bd0:e2d9:37e6"
+                          }
+                        ],
+                        "related_observables_domain": [
+                          {
+                            "value": "dbo.rmhk.ru"
+                          }
+                        ],
+                        "related_observables_uri": [
+                          {
+                            "value": "https://dbo.rmhk.ru//fl"
+                          }
+                        ],
+                        "related_observables_service": [
+                          {
+                            "name": "веб",
+                            "value": "443/TCP"
+                          }
+                        ],
+                        "related_indicators_ipv4": [
+                          {
+                            "function": "Центр управления ВПО",
+                            "value": "5.5.5.5"
+                          }
+                        ],
+                        "related_indicators_ipv6": [
+                          {
+                            "function": "Источник распространения ВПО",
+                            "value": "FF02:0:0:0:0:1:FF00"
+                          }
+                        ],
+                        "related_indicators_domain": [
+                          {
+                            "function": "Источник распространения ВПО",
+                            "value": "badboy.ru"
+                          }
+                        ],
+                        "related_indicators_vuln": [
+                          {
+                            "value": "такая-то уязвимость была задействована"
+                          }
+                        ]
+                  }
+
+              rkn:
+                summary: Создание уведомления о КИ в случае утечки персональных данных
+                description: Данный запрос производится в случае утечки персональных данных.
+                value:
+                  {
+                    "company": "АО \"Ромашка\"",
+                    "category": "Уведомление о компьютерном инциденте",
+                    "type": "Заражение ВПО",
+                    "assistance": true,
+                    "detection_tool": "ПО Kaspersky",
+                    "detect_time": "2022-10-02T15:22:52Z",
+                    "end_time": "2023-01-02T15:22:52Z",
+                    "tlp": "TLP:GREEN",
+                    "availability_impact": "Отсутствует",
+                    "integrity_impact": "Низкое",
+                    "confidentiality_impact": "Высокое",
+                    "custom_impact": "больше не было других влияний",
+                    "activity_status": "Проводятся мероприятия по реагированию",
+                    "affected_system_name": "АСУ \"Управление распределением энергии\"",
+                    "affected_system_category": "Объект КИИ третьей категории значимости",
+                    "affected_system_function": "Топливно-энергетический комплекс",
+                    "affected_system_connection": true,
+                    "event_description": "На хосте выявлен вирус BlackEnergy",
+                    "city": "Красноярск",
+                    "location": "RU-KYA",
+                    "rkn_leak_pd": true,
+                    "rkn_number": "5982306",
+                    "rkn_full_name": "Акционерное Общество \"Ромашка\"",
+                    "rkn_inn": 1111111111,
+                    "rkn_address": "111111, Московская область, г. Мытищи, ул. Примерная, д. 5",
+                    "rkn_email": "romashka@romashka.ru",
+                    "rkn_reasons": "Хакерская атака на сайт",
+                    "rkn_pers_data": "Клиенты интернет магазина. В содержащихся записях были указаны номера телефонов, адреса электронной почты, адреса доставки и имена.",
+                    "rkn_damage": "Низкий",
+                    "rkn_measures": "Сразу же после выявления инцидента были приняты меры по устранению вирусов и вредоносных программ, запущенных на сайте, а так же проведён полный аудит и принят комплекс мер по усилению защиты сайта.",
+                    "rkn_add_info": "Отсутствуют",
+                    "rkn_investigation": "Хакерская атака на сайт компании, повлекшая за собой распространение данных пользователей и вывод сайта из состояния работоспособности.",
+
+                    "related_observables_ipv4": [
+                      {
+                        "value": "12.12.12.12"
+                      }
+                    ],
+                    "related_observables_ipv6": [
+                      {
+                        "value": "9090:5ffd:695e:fec4:8ecf:8bd0:e2d9:37e6"
+                      }
+                    ],
+                    "related_observables_domain": [
+                      {
+                        "value": "dbo.rmhk.ru"
+                      }
+                    ],
+                    "related_observables_uri": [
+                      {
+                        "value": "https://dbo.rmhk.ru//fl"
+                      }
+                    ],
+                    "related_observables_email": [
+                      {
+                        "value": "ivanovmn@rmhk.ru"
+                      }
+                    ],
+                    "related_observables_service": [
+                      {
+                        "name": "веб",
+                        "value": "443/TCP"
+                      }
+                    ],
+                    "related_indicators_ipv4": [
+                      {
+                        "function": "Центр управления ВПО",
+                        "value": "5.5.5.5"
+                      }
+                    ],
+                    "related_indicators_ipv6": [
+                      {
+                        "function": "Источник распространения ВПО",
+                        "value": "FF02:0:0:0:0:1:FF00"
+                      }
+                    ],
+                    "related_indicators_domain": [
+                      {
+                        "function": "Источник распространения ВПО",
+                        "value": "badboy.ru"
+                      }
+                    ],
+                    "related_indicators_uri": [
+                      {
+                        "function": "Источник распространения ВПО",
+                        "value": "https://badboy.com//efweW42ERFSA"
+                      }
+                    ],
+                    "related_indicators_email": [
+                      {
+                        "value": "admin@badboy.com"
+                      }
+                    ],
+                    "malware_hash": [
+                      {
+                        "value": "837b05ef39ba55332d5ec44804e2daa0"
+                      }
+                    ],
+                    "related_indicators_vuln": [
+                      {
+                        "value": "такая-то уязвимость была задействована"
+                      }
+                    ]
+                  }
+              seven:
+                summary: Изменение/добавление данных по уведомлению о КИ
+                description: >-
+                  Данный запрос выполняется в случае запроса НКЦКИ дополнительной информации
+                  по отправленному уведомлению о КИ (НКЦКИ
+                  переводит статус (status) уведомления в значение "Требуется дополнение").
+                  Кроме обязательных полей, передаются только
+                  те поля, по которым запросил информацию НКЦКИ.
+                value: {
+                        "uuid": "b09da8fd-b50c-4161-88e4-cd7e2f428abb",
+                        "company": "АО \"Ромашка\"",
+                        "status": "Проверка НКЦКИ",
+                        "activity_status": "Проводятся мероприятия по реагированию",
+                        "event_description": "тестовое уведомление",
+                        "detection_tool": "WAF",
+                        "end_time": "2020-08-17T20:33:11Z",
+                        "availability_impact": "Отсутствует",
+                        "integrity_impact": "Низкое",
+                        "confidentiality_impact": "Высокое",
+                        "custom_impact": "больше не было других влияний",
+                        "city": "Красноярск",
+                }
+              eight:
+                summary: 'Изменение/добавление данных по уведомлению о КА'
+                description: >-
+                  Данный запрос выполняется в случае запроса НКЦКИ дополнительной информации по отправленному уведомлению о КА (НКЦКИ переводит статус (status) уведомление в значение "Требуется дополнение"). Кроме обязательных полей, передаются только те поля, по которым запросил информацию НКЦКИ.
+                value: {
+                        "uuid": "b09da8fd-b50c-4161-88e4-cd7e2f428abb",
+                        "company": "АО \"Ромашка\"",
+                        "status": "Проверка НКЦКИ",
+                        "activity_status": "Проводятся мероприятия по реагированию",
+                        "event_description": "тестовое уведомление",
+                        "detection_tool": "WAF",
+                        "end_time": "2020-08-17T20:33:11Z",
+                        "city": "Красноярск",
+                }
+          multipart/form-data:
+            schema:
+              anyOf:
+                -  $ref: '#/components/schemas/AddFiles'
+                -  $ref: '#/components/schemas/NewNotificationWithFiles'
+            examples:
+              one:
+                summary: "Добавление файла к уведомлению"
+                value: {
+                    "uuid": "b09da8fd-b50c-4161-7777-cd7e2f428abb",
+                    "company": "АО \"Ромашка\"",
+                    "files": "string"
+                  }
+              two:
+                summary: "Создание нового уведомления с файлом"
+                value: {
+                    "category": "Уведомление о компьютерном инциденте",
+                    "type": "Заражение ВПО",
+                    "owner_name": "АО \"Ромашка\"",
+                    "company": "АО \"Ромашка\"",
+                    "assistance": true,
+                    "tlp": "TLP:GREEN",
+                    "detect_time": "2024-08-17T15:22:52Z",
+                    "end_time": "2024-09-17T17:22:52Z",
+                    "activity_status": "Проводятся мероприятия по реагированию",
+                    "detection_tool": "WAF",
+                    "affected_system_name": "ДБО ФЛ",
+                    "affected_system_category": "Объект КИИ без категории значимости",
+                    "affected_system_function": "Банковская сфера и иные сферы финансового рынка",
+                    "affected_system_connection": false,
+                    "event_description": "тестовое уведомление",
+                    "integrity_impact": "Высокое",
+                    "availability_impact": "Высокое",
+                    "confidentiality_impact": "Низкое",
+                    "custom_impact": "Присвоили информацию",
+                    "location": "RU-KYA",
+                    "city": "Красноярск",
+                    "files": "string"
+                  }
+
+      responses:
+        '200':
+          description: 'OK — успешный запрос изменения данных по уведомлению о КИ/КА/ в ЛК ГосСОПКА.'
+          content:
+            application/json:
+                example:
+                        "success": true
+                        "data": [
+                            {
+                                "identifier": "21-07-573",
+                                "uuid": "87e37777-0a7c-4879-888b-86f1d9cdb175",
+                                "update_time": "2021-07-14T22:32:37.845Z"
+                            }
+                        ]
+
+        '201':
+          description: 'OK — успешный запрос на создание уведомления о КИ/КА в ЛК ГосСОПКА.'
+          content:
+            application/json:
+                example:
+                        "success": true
+                        "data": [
+                            {
+                                "identifier": "21-07-573",
+                                "uuid": "87e37777-0a7c-4879-888b-86f1d9cdb175",
+                                "create_time": "2021-07-14T19:28:44.845Z"
+                            }
+                        ]
+
+                      
+        '400':
+          description: 'Bad Request — сервер обнаружил в запросе клиента ошибочные данные.'
+          content:
+            application/json:
+                example:
+                        "success": false
+                        "message": "[400 Bad Request] Передан неверный токен"
+                        "error": "Передан неверный токен"
+                        "statusCode": 400
+
+          
+        '404':
+          description: 'Not Found — запрашиваемый URL не существует. Сервер "понял" запрос, но не нашёл соответствующего ресурса по указанному URL. Ответ 404 может использоваться вместо 403, если требуется скрыть определённые ресурсы.'
+        '500':
+          description: 'Internal Server Error — любая внутренняя ошибка сервера.' 
+     
+    get:
+      tags:
+        - "Уведомления"
+      summary: Получение данных по уведомлениям о КИ/КА
+      description: "Получение изменений по уведомлениям. Изменения в карточку уведомления со стороны НКЦКИ (в автоматизированном или автоматическом режиме) вносятся в следующие поля: create_time (один раз при регистрации уведомления в ЛК); reg_number (один раз при регистрации уведомления в ЛК); status (в ходе жизненного цикла уведомления); updated (каждый раз при внесении изменений в поле карточки уведомления)"
+      parameters:
+        - in: query
+          name: filter
+          required: false
+          schema:
+            $ref: '#/components/schemas/NotificationFilter'
+          examples:
+            one: 
+              summary: Фильтрация уведомлений по уникальному идентификатору
+              value: '[{"property":"uuid","operator":"eq","value":"e8eb9f71-67f9-491b-8f5a-b5414e781693"}]'
+            two: 
+              summary: Фильтрация уведомлений по регистрационному номеру
+              value: '[{"property":"reg_number","operator":"eq","value":"RMSH-20-12-121"}]'
+            three: 
+              summary: Фильтрация уведомлений по категории
+              value: '[{"property":"category","operator":"eq","value":"Уведомление о компьютерном инциденте"}]'
+            four: 
+              summary: Фильтрация уведомлений по дате регистрации
+              value: '[{"property":"category","operator":"in","value":["Уведомление о компьютерном инциденте", "Уведомление о компьютерной атаке"]},{"property":"create_time","operator":">=","value":"2020-12-15T22:37:54"}]'
+            five: 
+              summary: Фильтрация уведомлений по дате последнего обновления
+              value: '[{"property":"category","operator":"in","value":["Уведомление о компьютерном инциденте", "Уведомление о компьютерной атаке"]},{"property":"updated","operator":">=","value":"2020-12-15T22:37:54"}]'
+
+
+        - in: query
+          name: fields
+          required: true
+          description: "Получение определенных полей в ответе"
+          schema:
+            $ref: '#/components/schemas/GetNotificationFields'
+          examples:
+            one: 
+              summary: Получение регистрационного номера и даты регистрации уведомления
+              value: '["reg_number", "create_time"]'
+            two: 
+              summary: Получение текущего статуса уведомления
+              value: '["status"]'
+            three: 
+              summary: Получение даты последнего обновления уведомления
+              value: '["updated"]'
+            four:
+              summary: Получение списка всех полей
+              value: '["reg_number", "create_time", "status", "int_result", "category", "type", "activity_status", "assistance", "event_description", "detection_tool", "detect_time", "end_time", "tlp", "owner_name", "reporter_name", "integrity_impact", "availability_impact", "confidentiality_impact", "custom_impact", "affected_system_name", "affected_system_category", "affected_system_function", "affected_system_connection", "location", "city", "related_observables_ipv4", "related_observables_ipv6", "related_observables_domain", "inrelated_observables_ipv4", "inrelated_observables_ipv6", "inrelated_observables_domain", "related_observables_uri", "related_observables_email", "related_observables_service", "related_observables_as_path", "related_indicators_ipv4", "related_indicators_ipv6", "related_indicators_domain", "related_indicators_uri", "related_indicators_email", "malware_hash", "inrelated_indicators_ipv4", "inrelated_indicators_ipv4_malware", "inrelated_indicators_ipv6", "inrelated_indicators_ipv6_malware", "inrelated_indicators_domain", "inrelated_indicators_domain_malware", "inrelated_indicators_uri", "inrelated_indicators_email", "inrelated_indicators_hash", "related_indicators_vuln", "related_indicators_asn", "related_indicators_as", "related_indicators_as_lir", "product_info", "vulnerability_id", "product_category", "uuid"]'
+
+        - in: query
+          name: offset
+          required: false
+          schema:
+            $ref: '#/components/schemas/Offset'
+        
+        - in: query
+          name: limit
+          example: 50
+          required: false
+          schema:
+            $ref: '#/components/schemas/Limit'
+
+        - in: query
+          name: sort
+          examples:
+            one:
+              summary: Сортировка уведомлений по дате создания
+              value: '[{"property":"create_time", "direction":"ASC"}]'
+          required: false
+          description: "Сортировка выводимых данных"
+          schema:
+            $ref: '#/components/schemas/Sorting'
+
+      responses:
+        '200':
+          description: 'OK — успешный запрос. Если клиентом были запрошены какие-либо данные, то они находятся в теле сообщения'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationFields'
+              examples:
+                one:
+                  summary: Получение регистрационного номера и даты регистрации уведомления
+                  value:
+                    "success": true
+                    "data": {
+                      "next": false,
+                      "result": [
+                        {
+                          "reg_number": "RMSH-20-09-256",
+                          "create_time": "2020-09-15T09:21:31.248Z"
+                        }
+                      ]
+                    }
+                two:
+                  summary: Получение текущего статуса уведомления
+                  value:
+                    "success": true
+                    "data": {
+                      "next": false,
+                        "result": [
+                          {
+                            "status": {
+                              "id": 4,
+                              "name": "Отправлено в архив"
+                            }
+                          }
+                        ]
+                    }
+                three:
+                  summary: Получение даты последнего обновлениях полей карточки уведомления
+                  value:
+                    "success": true
+                    "data": {
+                      "next": false,
+                      "result": [
+                        {
+                          "updated": "2020-09-15T09:21:31.248Z"
+                        }
+                      ]
+                    }
+                            
+        '400':
+          description: 'Bad Request — сервер обнаружил в запросе клиента ошибочные данные.'
+          content:
+            application/json:
+                example:
+                  "success": false
+                  "message": "[400 Bad Request] Передан неверный токен"
+                  "error": "Передан неверный токен"
+                  "statusCode": 400
+
+        '404':
+          description: 'Not Found — запрашиваемый URL не существует. Сервер "понял" запрос, но не нашёл соответствующего ресурса по указанному URL. Ответ 404 может использоваться вместо 403, если требуется скрыть определённые ресурсы.'
+        '500':
+          description: 'Internal Server Error — любая внутренняя ошибка сервера.'
+
+  /incidents/{incident.uuid}/files:
+    get:
+      tags:
+        - "Метаданные по файлам"
+      summary: Получение метаданных по файлам, прикрепленным к конкретной карточке сообщения. В ответе на данный запрос будет идентификатор файла (ID), который необходим для составления запроса на скачивание файла
+      description: >-
+        GET запрос для получения метаданных по файлам, прикрепленных к конкретной карточке сообщения
+      parameters:
+        - in: path
+          name: incident.uuid
+          example: 783c9f36-a5b1-4600-abe1-8b75d58eb649
+          required: true
+          description: "Уникальный идентификатор сообщения"
+          schema:
+            type: integer
+
+      responses:
+        '200':
+          description: 'OK — успешный запрос. Если клиентом были запрошены какие-либо данные, то они находятся в теле сообщения'
+          content:
+            application/json:
+              example:
+                  "success": true,
+                  "data": [
+                      {
+                          "id": 4122,
+                          "name": "test_file",
+                          "filename": "ioc_info.xlsx",
+                          "description": "",
+                          "size": 9943,
+                          "type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                          "md5": "f25ace09a6df516e66424d4e88c1bb8b",
+                          "sha1": "82396f50ee30c0fe8546389769ab86ce90e429dc",
+                          "source": "",
+                          "add_date": "2021-07-23T00:38:43.272Z"
+                      }
+                  ]
+
+        '400':
+          description: 'Bad Request — сервер обнаружил в запросе клиента ошибочные данные.'
+          content:
+            application/json:
+                example:
+                  "success": false
+                  "message": "[400 Bad Request] Передан неверный токен"
+                  "error": "Передан неверный токен"
+                  "statusCode": 400
+
+        '404':
+          description: 'Not Found — запрашиваемый URL не существует. Сервер "понял" запрос, но не нашёл соответствующего ресурса по указанному URL. Ответ 404 может использоваться вместо 403, если требуется скрыть определённые ресурсы.'
+        '500':
+          description: 'Internal Server Error — любая внутренняя ошибка сервера.'
+
+
+
+  /incidents/files/{file.id}/download:
+    get:
+      tags:
+        - "Скачивание файла"
+      summary: Скачивание файла, прикрепленного к карточке сообщения
+      description: >-
+        GET запрос для получения файла, прикрепленного к карточке сообщения
+      parameters:
+        - in: path
+          name: file.id
+          example: 21281
+          required: true
+          description: "Идентификатор файла"
+          schema:
+            type: integer
+
+      responses:
+        '200':
+          description: 'OK — успешный запрос. В ответ будет получен файл'
+
+        '400':
+          description: 'Bad Request — сервер обнаружил в запросе клиента ошибочные данные.'
+          content:
+            application/json:
+                example:
+                  "success": false
+                  "message": "[400 Bad Request] Передан неверный токен"
+                  "error": "Передан неверный токен"
+                  "statusCode": 400
+
+        '404':
+          description: 'Not Found — запрашиваемый URL не существует. Сервер "понял" запрос, но не нашёл соответствующего ресурса по указанному URL. Ответ 404 может использоваться вместо 403, если требуется скрыть определённые ресурсы.'
+        '500':
+          description: 'Internal Server Error — любая внутренняя ошибка сервера.'
+
+
+
+  /comments:
+    post:
+      summary: Создание нового комментария в уведомлении о КИ/КА
+      description: >-
+        Запрос создает новый комментарий в карточке (во кладке "Комментарии") уведомления о КИ/КА. Авторство
+        комментария определяется на основании API токена, который был использован при формировании комментария. В ключе "incident
+        .uuid" прописывается UUID уведомления о КИ/КА, в котором необходимо написать комментарий.
+      tags:
+        - "Комментарии"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/Comments'
+              
+              required:
+                - incident.uuid
+                - data
+  
+      responses:
+        '200':
+          description: 'OK — успешный запрос. Если клиентом были запрошены какие-либо данные, то они находятся в теле сообщения'
+          content:
+            application/json:
+                example:
+                  "data": {
+                    "id": 301,
+                    "incident_id": 546,
+                    "comment": "hello",
+                    "user_id": 5,
+                    "d_comment": "2020-08-19T00:00:00.000Z",
+                    "t_comment": "01:06:00",
+                    "createdAt": "2020-08-19T01:07:07.661Z",
+                    "updatedAt": "2020-08-19T01:07:07.661Z",
+                    "to": "",
+                    "parent_id": null,
+                    "workgroup_resolved": false,
+                    "options": {}
+                  }
+                  "success": true
+
+                      
+        '400':
+          description: 'Bad Request — сервер обнаружил в запросе клиента ошибочные данные.'
+          content:
+          
+            application/json:
+                example:
+                  "success": false
+                  "message": "[400 Bad Request] Передан неверный токен"
+                  "error": "Передан неверный токен"
+                  "statusCode": 400
+
+        '404':
+          description: 'Not Found — запрашиваемый URL не существует. Сервер "понял" запрос, но не нашёл соответствующего ресурса по указанному URL. Ответ 404 может использоваться вместо 403, если требуется скрыть определённые ресурсы.'
+        '500':
+          description: 'Internal Server Error — любая внутренняя ошибка сервера.'
+          content:
+            application/json:
+              example:
+                "success": false
+                "message": "[500 Server Error] Передан пустой идентификатор инцидента"
+                "error": "Передан пустой идентификатор инцидента"
+                "stack": null
+                "description": null
+                "statusCode": 500
+
+  /incidents/comments: 
+    get:
+      summary: Получение комментариев по уведомлениям/сообщениям
+      tags:
+        - "Комментарии"
+      parameters:
+        - in: query
+          name: filter
+          required: false
+          description: "Фильтрация по атрибутам комментариев"
+          schema:
+            $ref: '#/components/schemas/CommentFilter'
+          examples: 
+            one:
+              summary: Фильтр по дате создания комментария
+              value: '[{"property":"create_time","operator":"gt","value":"2020-08-14T00:00:00Z"}]'
+            two:
+              summary: Фильтр по автору комментария
+              value: '[{"property":"login","operator":"eq","value":"Оператор НКЦКИ"}]'
+            three:
+              summary: Фильтр по дате создания комментария и по автору комментария
+              value: '[{"property":"create_time","operator":"gt","value":"2020-12-01T00:00:00Z"}, {"property":"login","operator":"eq","value":"Оператор НКЦКИ"}]'
+
+        - in: query
+          name: offset
+          required: false
+          schema:
+            $ref: '#/components/schemas/Offset'
+        
+        - in: query
+          name: limit
+          example: 50
+          required: false
+          schema:
+            $ref: '#/components/schemas/Limit'
+            
+            
+        - in: query
+          name: sort
+          description: "Сортировка выводимых данных"
+          examples: 
+            one:
+              summary: Сортировка комментариев по дате создания
+              value: '[{"property":"create_time", "direction":"ASC"}]'
+          required: false
+          schema:
+            $ref: '#/components/schemas/Sorting'
+
+      responses:
+        '200':
+          description: 'OK — успешный запрос. Если клиентом были запрошены какие-либо данные, то они находятся в теле сообщения'
+          content:
+            application/json:
+              examples: 
+                answer:
+                  summary: Получение комментариев по уведомлениям
+                  value: {
+                        "data": [
+                          {
+                            "id": 1721,
+                            "incident.uuid": "783c9f36-a5b1-4600-abe1-8b75d58eb649",
+                            "text": "Добрый день.",
+                            "login": "Оператор НКЦКИ",
+                            "incident.id": "INC-20-09-368",
+                            "create_time": "2020-09-30T08:15:06.864Z"
+                          },
+                          {
+                            "id": 1720,
+                            "incident.uuid": "783c9f36-a5b1-4600-abe1-8b75d58eb649",
+                            "text": "Просим сообщить через блок «Комментарии» перечень вопросов, по которым запрошено содействие НКЦКИ",
+                            "login": "ТИ НКЦКИ",
+                            "incident.id": "INC-20-09-368",
+                            "create_time": "2020-09-30T08:00:02.543Z"
+                          }],
+                        "success": true
+                        }
+        '400':
+          description: 'Bad Request — сервер обнаружил в запросе клиента ошибочные данные.'
+          content:
+            application/json:
+                example:
+                  "success": false
+                  "message": "[400 Bad Request] Передан неверный токен"
+                  "error": "Передан неверный токен"
+                  "statusCode": 400
+        '404':
+          description: 'Not Found — запрашиваемый URL не существует. Сервер "понял" запрос, но не нашёл соответствующего ресурса по указанному URL. Ответ 404 может использоваться вместо 403, если требуется скрыть определённые ресурсы.'
+        '500':
+          description: 'Internal Server Error — любая внутренняя ошибка сервера.'
+  
+  /incidents/{uuid}/comments:
+    get:
+      summary: Получение комментариев по конкретному уведомлению
+      description: >-
+        Запрос осуществляется для получения комментариев по одному уведомлению. Запрос можно уточнить, применив фильтр по дате создания
+        комментария и/или по автору комментария
+      tags:
+        - "Комментарии"
+      parameters:
+        - in: path
+          name: uuid
+          example: 24ab0c28-e1f4-4452-89d3-47d54c1e4b21
+          required: true
+          description: "Уникальный идентификатор уведомления"
+          schema:
+            type: string
+              
+        - in: query
+          name: filter
+          required: false 
+          schema:
+            $ref: '#/components/schemas/CommentFilter'  
+          examples: 
+            one:
+              summary: Фильтр по дате создания комментария
+              value: '[{"property":"create_time","operator":"gt","value":"2020-08-14T00:00:00Z"}]'
+            two:
+              summary: Фильтр по автору комментария
+              value: '[{"property":"login","operator":"eq","value":"Оператор НКЦКИ"}]'
+            three:
+              summary: Фильтр по дате создания комментария и по автору комментария
+              value: '[{"property":"create_time","operator":"gt","value":"2020-12-01T00:00:00Z"}, {"property":"login","operator":"eq","value":"Оператор НКЦКИ"}]'
+            
+      responses:
+        '200':
+          description: 'OK — успешный запрос. Если клиентом были запрошены какие-либо данные, то они находятся в теле сообщения'
+          content:
+            application/json:
+                example:
+                  "data": [
+                    {
+                      "id": 1478,
+                      "incident.uuid": "24ab0c28-e1f4-4452-89d3-47d54c1e4b21",
+                      "text": "Просим сообщить через блок «Комментарии» перечень вопросов, по которым запрошено содействие НКЦКИ. Статус реагирования: Проводятся мероприятия по реагированию на инцидент",
+                      "login": "ТИ НКЦКИ",
+                      "incident.id": "INC-20-09-158",
+                      "create_time": "2020-09-15T09:21:49.186Z"
+                    },
+                    {
+                      "id": 1477,
+                      "incident.uuid": "24ab0c28-e1f4-4452-89d3-47d54c1e4b21",
+                      "text": "Внесите в уведомление (группа полей «технические сведения об атакуемом/атакующем объектах») RMSH-20-09-269 технические сведения о событии информационной безопасности и поменяйте статус данного уведомления с «Внесение доп.сведений» на «Передано в НКЦКИ». После этого отслеживайте состояние и ход информационного взаимодействия по уведомлению RMSH-20-09-269 в блоке «Комментарии».",
+                      "login": "ТИ НКЦКИ",
+                      "incident.id": "INC-20-09-158",
+                      "create_time": "2020-09-15T09:21:48.892Z"
+                    }
+                  ]
+                  "success": true
+
+        '400':
+          description: 'Bad Request — сервер обнаружил в запросе клиента ошибочные данные.'
+          content:
+          
+            application/json:
+                example:
+                        "success": false
+                        "message": "[400 Bad Request] Передан неверный токен"
+                        "error": "Передан неверный токен"
+                        "statusCode": 400
+
+        '404':
+          description: 'Not Found — запрашиваемый URL не существует. Сервер "понял" запрос, но не нашёл соответствующего ресурса по указанному URL. Ответ 404 может использоваться вместо 403, если требуется скрыть определённые ресурсы.'
+        '500':
+          description: 'Internal Server Error — любая внутренняя ошибка сервера.'  
+
+security:
+  - ApiKeyAuth: []
+  
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header     
+      name: "x-token" 
+      description: "API-ключ, сгенерированный для пользователя ЛК ГосСОПКА"
+
+  schemas:
+
+    NotificationFields:
+      title: Уведомления. Описание полей
+      properties:
+
+        uuid:
+          type: string
+          maxLength: 5000
+          example: "b09da8fd-b50c-4161-88e4-cd7e2f428abb"
+          description: "Уникальный идентификатор карточки уведомления. При создании нового уведомления создается автоматически, используется для обновления существующих уведомлений"
+
+
+    NotificationMianFilter:
+      example: 'filter=[{"property":"uuid","operator":"eq","value":"01d238ec-0a4e-4cd4-9647-ac535bc50c14"}]&fields=["uuid", "company", "create_time", "detect_time", "end_time", "updated"]&sort=[{"property":"create_time", "direction":"ASC"}]&limit=10&offset=0'
+      title: Уведомления. Описание параметров
+      type: object
+      properties:
+        filter:
+          $ref: '#/components/schemas/NotificationFilter'
+        sort:
+          $ref: '#/components/schemas/Sorting'
+        fields:
+          $ref: '#/components/schemas/GetNotificationFields'
+        limit:
+          $ref: '#/components/schemas/Limit'
+        offset:
+          $ref: '#/components/schemas/Offset'
+          
+        
+    NotificationFilter:
+      title: Уведомления. Формат фильтрации уведомлений по атрибутам
+      description: "Описание формирования фильтра в параметрах GET запроса для получения конкретных карточек
+        уведомлений"
+      type: array
+      items:
+        type: object
+        properties:
+          property:
+            type: string
+            enum: 
+                - uuid
+                - reg_number
+                - category
+                - status
+                - create_time
+                - updated
+            example: "uuid"
+            description: "Одно из полей уведомления, по которому будет проводиться фильтрация"
+
+          operator:
+            type: string
+            enum: ['=', '==', '!=', '/=', '>', '<', '>=', '<=', 'eq', 'ne', 'gt', 'lt', 'gte', 'lte', 'ge', 'le', 'in', 'notin', 'not in', 'not_in', 'like', 'ilike', 'is_null', 'not ilike', 'is null', 'between', 'not between']
+            description: > 
+              "Оператор, используемый при фильтрации"
+               * `=`, `==`, `eq` - Равно. Пример: *[{"property": "category", "operator": "=" , "value": "Уведомление о компьютерной атаке"}]*
+               * `!=`, `/=`, `ne` - Не равно. Пример: *[{"property": "category", "operator": "!" , "value": "Уведомление о компьютерной атаке"}]*
+               * `>`, `gt` - Больше. Применяется для полей типа дата. Пример: *[{"property": "create_time", "operator": ">" , "value": "2024-10-11T11:18:01.110Z"}]*
+               * `<`, `lt` - Меньше. Применяется для полей типа дата. Пример: *[{"property": "create_time", "operator": "<" , "value": "2024-10-11T11:18:01.110Z"}]*
+               * `>=`, `ge`, `gte` - Больше или равно. Применяется для полей типа дата. Пример: *[{"property": "create_time", "operator": ">=" , "value": "2024-10-11T"}]*
+               * `<=`, `le`, `lte` - Меньше или равно. Применяется для полей типа дата. Пример: *[{"property": "create_time", "operator": "<=" , "value": "2024-10-11"}]*
+               * `in` - Поиск по вхождению значений. Применяется для полей типа выпадающего списка. Пример: *[{"property": "category", "operator": "in" , "value":  ["Уведомление о компьютерном инциденте", "Уведомление о компьютерной атаке"]}]*
+               * `not in`, `notin`, `not_in` -  Исключение списка вариантов. Применяется для полей типа выпадающего списка. Пример: *[{"property": "category", "operator": "not in" , "value": ["Уведомление о компьютерном инциденте", "Уведомление о компьютерной атаке"]}]*
+               * `like`, `ilike` - Содержание подстроки. Применяется для текстовых строк. Пример: *[{"property": "event_description", "operator": "like" , "value":  "Описание"}]*
+               * `not ilike`- Отсутствие подстроки. Применяется для текстовых строк. Пример: *[{"property": "event_description", "operator": "not ilike" , "value":  "Описание"}]*
+               * `between` - Поиск по вхождению в диапазон дат по двум значениям. Пример: *[{"property": "detect_time", "operator": "between" , "value":  ["2024-10-27", "2024-10-29"]}]*
+               * `not between` - Поиск по отсутствию вхождения в диапазон дат по двум значениям. Пример: *[{"property": "detect_time", "operator": "not between" , "value":  ["2024-10-27", "2024-10-29"]}]*
+               * `is_null`, `is null` - Отсутствие значения в поле. Пример: *[{"property": "detection_tool", "operator": "is null" , "value":  null}]*
+          value:
+            type: string
+            example: "12967d4c-4f3d-4956-9f1b-e672849959c3"
+            description: "Значение параметра, которое будет сравниваться со значениями выбранного поля в property"
+      example: '[{"property":"uuid","operator":"eq","value":"01d238ec-0a4e-4cd4-9647-ac535bc50c14"}]'
+            
+  
+
+    Sorting:
+      title: Уведомления. Сортировка данных по полю
+      example: '[{"property":"create_time", "direction":"ASC"}]'
+      description: >- 
+        Описание формирования параметра для сортировки выводимых данных в ответе на запрос по комментариям
+      
+      type: array
+      items:
+        type: object
+        properties:
+          property:
+            type: string
+            example: "create_time"
+            description: "Наименование поля, по которому будет проводиться сортировка"
+          direction:
+            type: string
+            enum: ['ASC','DESC'] 
+            description: "Направление сортировки"
+        required:
+            - property
+            - direction
+            
+
+
+    GetNotificationFields:
+      title: Уведомления. Получение полей
+      description: >-
+        Формирование параметра в GET запросе для получения необходимого состава полей карточки уведомления
+      type: object
+      properties:
+        fields:
+          type: array
+          items:
+            $ref: '#/components/schemas/NotificationFields'
+            # description: "теги полей карточки уведомления"
+            # type: string
+            # enum: 
+            #   - uuid
+            #   - company
+            #   - create_time
+            #   - detect_time
+            #   - end_time
+            #   - updated
+      example: '["uuid", "company", "create_time", "detect_time", "end_time", "updated"]'
+
+    RknFields:
+      title: Уведомления. Сведения об утечке персональных данных
+      description: 'Данные поля заполняются в случае возникновения утечки персональных данных. Поля доступны для следующих типов уведомлений: "Заражение ВПО", "Компрометация учетной записи", "Несанкционированное разглашение информации", "Успешная эксплуатация уязвимости", "Событие не связано с компьютерной атакой"'
+      type: object
+      properties:
+
+        rkn_leak_pd:
+          type: boolean
+          example: true
+          description: 'Утечка ПДн. В случае возникновения утечки персональных данных необходимо передать данное поле со значением true'
+
+        rkn_full_name:
+          type: string
+          example: "АО \"Ромашка\""
+          description: "Наименование оператора"
+          maxLength: 5000
+
+        rkn_inn:
+          type: number
+          example: 500100732250
+          description: "ИНН"
+          maxLength: 5000
+
+        rkn_address:
+          type: string
+          example: "г. Санкт-Петербург, ул. Ромашкина, 152"
+          description: "Адрес оператора"
+          maxLength: 5000
+
+        rkn_email:
+          type: string
+          example: "romashka@romashka.ru"
+          description: "Адрес электронной почты для отправки информации об уведомлении"
+          maxLength: 5000
+
+        rkn_reasons:
+          type: string
+          example: "Хакерская атака на сайт"
+          description: "Предполагаемые причины, повлекшие нарушение прав субъектов ПД"
+          maxLength: 5000
+
+        rkn_pers_data:
+          type: string
+          example: "Клиенты интернет магазина, примерное количество N контактов. В содержащихся записях были указаны номера телефонов, адреса электронной почты, адреса доставки и имена."
+          description: "Характеристики персональных данных"
+          maxLength: 5000
+
+        rkn_damage:
+          type: string
+          example: "Вред правам субъектов персональных данных – низкий."
+          description: "Предполагаемый вред, нанесенный правам субъектов ПД"
+          maxLength: 5000
+
+        rkn_measures:
+          type: string
+          example: "Сразу же после выявления инцидента были приняты меры по устранению вирусов и вредоносных программ, запущенных на сайте, а так же проведён полный аудит и принят комплекс мер по усилению защиты сайта."
+          description: "Принятые меры по устранению последствий инцидента"
+          maxLength: 5000
+
+        rkn_add_info:
+          type: string
+          example: "Дополнительный сведения"
+          description: "Дополнительный сведения"
+          maxLength: 5000
+
+        rkn_investigation:
+          type: string
+          example: "Хакерская атака на сайт компании, повлекшая за собой распространение данных пользователей и вывод сайта из состояния работоспособности."
+          description: "Информация о результатах внутреннего расследования инцидента"
+          maxLength: 5000
+
+    AddFiles:
+      title: Уведомления. Добавление файлов к уведомлению о КИ/КА
+      type: object
+      properties:
+        uuid:
+          type: string
+          maxLength: 5000
+          example: "b09da8fd-b50c-4161-7777-cd7e2f428abb"
+          description: "Уникальный идентификатор карточки уведомления"
+        company:
+          type: string
+          maxLength: 5000
+          example: "АО \"Ромашка\""
+          description: "Обязательно для заполнения MSSP-провайдерам. Краткое наименование организации субъекта ГосСОПКА"
+        files:
+          type: string
+          format: binary
+          description: "Передаваемый файл, можно добавлять несколько. Размер не более 50Мб"
+      required:
+        - uuid
+        - company
+        - files
+      description: "Post запрос для передачи файлов в созданное уведомление. Размер файла должен быть не более 50Мб"
+
+
+    NewNotificationWithFiles:
+      title: Уведомления. Пример создания нового уведомления о КИ/КА с файлами
+      type: object
+      properties:
+        category:
+          type: string
+          example: "Уведомление о компьютерном инциденте"
+          description: "Категория уведомления. Значение передается строго из справочника. В данном случае необходимо использовать значение 'Уведомление о компьютерном инциденте'"
+          enum: [ "Уведомление о компьютерном инциденте" ]
+        type:
+          type: string
+          example: "Заражение ВПО"
+          description: "Тип события ИБ. Значение передается строго из справочника"
+          enum: [ "Заражение ВПО", "Замедление работы ресурса в результате DDoS-атаки", "Захват сетевого трафика", "Компрометация учетной записи", "Несанкционированное изменение информации", "Несанкционированное разглашение информации", "Публикация на ресурсе запрещенной законодательством РФ информации", "Успешная эксплуатация уязвимости", "Использование контролируемого ресурса для проведения атак", "Событие не связано с компьютерной атакой" ]
+        owner_name:
+          type: string
+          maxLength: 5000
+          description: "Владелец информационного ресурса. В поле передается сокращенное наименование организации, в которой был выявлен инцидент"
+          example: "АО \"Ромашка\""
+        company:
+          description: "Обязательно для заполнения только MSSP провайдерам (т.е. для тех пользователей в ЛК, у которых в ответственности более одной организации). Другие участники информационного обмена не передают это поле. В поле передается сокращенное наименование организации, как указано в разделе «Настройки/Организации» Личного кабинета НКЦКИ"
+          type: string
+          maxLength: 5000
+          example: "АО \"Ромашка\""
+        assistance:
+          description: "Необходимость привлечения сил ГосСОПКА"
+          type: boolean
+          example: true
+        tlp:
+          type: string
+          example: "TLP:GREEN"
+          description: "Ограничительный маркер TLP. Значение передается строго из справочника"
+          enum: [ "TLP:WHITE", "TLP:GREEN", "TLP:AMBER", "TLP:RED" ]
+        detect_time:
+          type: string
+          format: date-time
+          example: "2020-08-17T15:22:52Z"
+          description: "Дата и время выявления инцидента. Заполняется по правилам стандарта ISO 8601. Используется timeZone UTC. Установлена валидация на вводимые значения: стоит запрет на указание даты из будущего."
+        end_time:
+          type: string
+          format: date-time
+          example: "2020-08-17T17:22:52Z"
+          description: "Дата и время завершения инцидента. Заполняется по правилам стандарта ISO 8601. Используется timeZone UTC. Установлена валидация на вводимые значения: стоит запрет на указание даты из будущего."
+        activity_status:
+          type: string
+          example: "Проводятся мероприятия по реагированию"
+          description: "Статус реагирования на инцидент. Значение передается строго из справочника"
+          enum: [ "Меры приняты", "Проводятся мероприятия по реагированию", "Возобновлены мероприятия по реагированию", "Инцидент не подтвержден" ]
+        detection_tool:
+          type: string
+          maxLength: 5000
+          example: "WAF"
+          description: "Сведения о средстве или способе выявления инцидента"
+        affected_system_name:
+          type: string
+          maxLength: 5000
+          example: "ДБО ФЛ"
+          description: "Наименование контролируемого ресурса, на котором был выявлен компьютерный инцидент"
+        affected_system_category:
+          type: string
+          example: "Объект КИИ без категории значимости"
+          description: "Информация о категорировании ОКИИ. Значение передается строго из справочника"
+          enum: [ "Информационный ресурс не является объектом КИИ", "Объект КИИ без категории значимости", "Объект КИИ третьей категории значимости", "Объект КИИ второй категории значимости", "Объект КИИ первой категории значимости" ]
+        affected_system_function:
+          type: string
+          example: "Банковская сфера и иные сферы финансового рынка"
+          description: "Сфера функционирования субъекта. Значение передается строго из справочника"
+          enum: [ "Атомная энергетика", "Банковская сфера и иные сферы финансового рынка", "Горнодобывающая промышленность", "Государственная/муниципальная власть", "Здравоохранение", "Металлургическая промышленность", "Наука", "Оборонная промышленность", "Образование", "Ракетно-космическая промышленность", "Связь", "СМИ", "Топливно-энергетический комплекс", "Транспорт", "Химическая промышленность", "Иная" ]
+        affected_system_connection:
+          type: boolean
+          example: false
+          description: "Наличие подключения к сети Интернет. В данном передается значение равное false"
+        event_description:
+          type: string
+          example: "тестовое уведомление"
+          maxLength: 5000
+          description: "Краткое описание события ИБ"
+        integrity_impact:
+          type: string
+          example: "Высокое"
+          description: "Влияние на целостность. Значение передается строго из справочника"
+          enum: [ "Высокое", "Низкое", "Отсутствует" ]
+        availability_impact:
+          type: string
+          example: "Высокое"
+          description: "Влияние на доступность. Значение передается строго из справочника"
+          enum: [ "Высокое", "Низкое", "Отсутствует" ]
+        confidentiality_impact:
+          type: string
+          example: "Низкое"
+          description: "Влияние на конфиденциальность. Значение передается строго из справочника"
+          enum: [ "Высокое", "Низкое", "Отсутствует" ]
+        custom_impact:
+          type: string
+          maxLength: 5000
+          example: "Присвоили информацию"
+          description: "Краткое описание иной формы последствий компьютерного инцидента"
+        location:
+          type: string
+          example: "RU-KYA"
+          description: "Локация. Значение из справочника ISO-3166-2"
+        city:
+          type: string
+          maxLength: 5000
+          example: "Красноярск"
+          description: "Населенный пункт или геокоординаты"
+        files:
+          type: string
+          format: binary
+          description: "Передаваемый файл, можно добавлять несколько. Размер не более 50Мб"
+      required:
+        - company
+        - category
+        - owner_name
+        - type
+        - event_description
+        - tlp
+        - detect_time
+        - activity_status
+        - affected_system_name
+        - affected_system_category
+        - affected_system_Function
+        - location
+      description: "Post запрос на создание уведомления с приложенными файлами. Размер файла должен быть не более 50Мб. Требования к обязательности полей зависят от указанной категории уведомления."
+
+   
+    NewNotificationCInotNet:
+      required:
+        - company
+        - category
+        - owner_name
+        - type
+        - event_description
+        - tlp
+        - detect_time
+        - activity_status
+        - affected_system_name
+        - affected_system_category
+        - affected_system_Function
+        - location
+      title: Создание уведомления о КИ (форма без технических сведений о субъекте/объекте инцидента)
+      description: >- 
+        Перечень полей при создании нового уведомления о КИ в API ЛК. Объект (в отношении которого
+        произошел инцидент, не имеет подключения к сети Интернет)
+      type: object
+      properties:
+        category:
+          type: string
+          example: "Уведомление о компьютерном инциденте"
+          description: "Категория уведомления. Значение передается строго из справочника. В данном случае необходимо использовать значение 'Уведомление о компьютерном инциденте'"
+          enum: [ "Уведомление о компьютерном инциденте" ]
+        type: 
+          type: string
+          example: "Заражение ВПО"
+          description: "Тип события ИБ. Значение передается строго из справочника"
+          enum: ["Заражение ВПО", "Замедление работы ресурса в результате DDoS-атаки", "Захват сетевого трафика", "Компрометация учетной записи", "Несанкционированное изменение информации", "Несанкционированное разглашение информации", "Публикация на ресурсе запрещенной законодательством РФ информации", "Успешная эксплуатация уязвимости", "Использование контролируемого ресурса для проведения атак", "Событие не связано с компьютерной атакой"]
+        owner_name:
+          type: string
+          maxLength: 5000
+          description: "Владелец информационного ресурса. В поле передается сокращенное наименование организации, в которой был выявлен инцидент"
+          example: "АО \"Ромашка\""
+        company:
+          description: "Обязательно для заполнения только MSSP провайдерам (т.е. для тех пользователей в ЛК, у которых в ответственности более одной организации). Другие участники информационного обмена не передают это поле. В поле передается сокращенное наименование организации, как указано в разделе «Настройки/Организации» Личного кабинета НКЦКИ"
+          type: string
+          maxLength: 5000
+          example:  "АО \"Ромашка\""
+        assistance: 
+          description: "Необходимость привлечения сил ГосСОПКА"
+          type: boolean
+          example: true
+        tlp:
+          type: string
+          example:  "TLP:GREEN"
+          description: "Ограничительный маркер TLP. Значение передается строго из справочника"
+          enum: [ "TLP:WHITE", "TLP:GREEN", "TLP:AMBER", "TLP:RED" ]
+        detect_time: 
+          type: string
+          format: date-time
+          example: "2020-08-17T15:22:52Z"
+          description: "Дата и время выявления инцидента. Заполняется по правилам стандарта ISO 8601. Используется timeZone UTC. Установлена валидация на вводимые значения: стоит запрет на указание даты из будущего."
+        end_time: 
+          type: string
+          format: date-time
+          example: "2020-08-17T17:22:52Z"
+          description: "Дата и время завершения инцидента. Заполняется по правилам стандарта ISO 8601. Используется timeZone UTC. Установлена валидация на вводимые значения: стоит запрет на указание даты из будущего."
+        activity_status:
+          type: string
+          example: "Проводятся мероприятия по реагированию"
+          description: "Статус реагирования на инцидент. Значение передается строго из справочника"
+          enum: [ "Меры приняты", "Проводятся мероприятия по реагированию", "Возобновлены мероприятия по реагированию", "Инцидент не подтвержден" ]
+        detection_tool:
+          type: string
+          maxLength: 5000
+          example:  "WAF"
+          description: "Сведения о средстве или способе выявления инцидента"
+        affected_system_name:
+          type: string
+          maxLength: 5000
+          example:  "ДБО ФЛ"
+          description: "Наименование контролируемого ресурса, на котором был выявлен компьютерный инцидент"
+        affected_system_category:
+          type: string
+          example:  "Объект КИИ без категории значимости"
+          description: "Информация о категорировании ОКИИ. Значение передается строго из справочника"
+          enum: [ "Информационный ресурс не является объектом КИИ", "Объект КИИ без категории значимости", "Объект КИИ третьей категории значимости", "Объект КИИ второй категории значимости", "Объект КИИ первой категории значимости" ]
+        affected_system_function: 
+          type: string
+          example: "Банковская сфера и иные сферы финансового рынка"
+          description: "Сфера функционирования субъекта. Значение передается строго из справочника"
+          enum: [ "Атомная энергетика", "Банковская сфера и иные сферы финансового рынка", "Горнодобывающая промышленность", "Государственная/муниципальная власть", "Здравоохранение", "Металлургическая промышленность", "Наука", "Оборонная промышленность", "Образование", "Ракетно-космическая промышленность", "Связь", "СМИ", "Топливно-энергетический комплекс", "Транспорт", "Химическая промышленность", "Иная" ]
+        affected_system_connection: 
+          type: boolean
+          example: false
+          description: "Наличие подключения к сети Интернет. В данном передается значение равное false"
+        event_description:
+          type: string
+          example:  "тестовое уведомление"
+          maxLength: 5000
+          description: "Краткое описание события ИБ"
+        integrity_impact:
+          type: string
+          example:  "Высокое"
+          description: "Влияние на целостность. Значение передается строго из справочника"
+          enum: [ "Высокое", "Низкое", "Отсутствует" ]
+        availability_impact:
+          type: string
+          example:  "Высокое"
+          description: "Влияние на доступность. Значение передается строго из справочника"
+          enum: [ "Высокое", "Низкое", "Отсутствует" ]
+        confidentiality_impact:
+          type: string
+          example:  "Низкое"
+          description: "Влияние на конфиденциальность. Значение передается строго из справочника"
+          enum: [ "Высокое", "Низкое", "Отсутствует" ]
+        custom_impact:
+          type: string
+          maxLength: 5000
+          example:  "Присвоили информацию"
+          description: "Краткое описание иной формы последствий компьютерного инцидента"
+        location:
+          type: string
+          example:  "RU-KYA"
+          description: "Локация. Значение из справочника ISO-3166-2"
+        city:
+          type: string
+          maxLength: 5000
+          example:  "Красноярск"
+          description: "Населенный пункт или геокоординаты"
+    
+    NewNotificationCI:
+      required:
+        - company
+        - category
+        - owner_name
+        - type
+        - event_description
+        - tlp
+        - detect_time
+        - activity_status
+        - affected_system_name
+        - affected_system_category
+        - affected_system_function
+        - location
+      title: Создание уведомления о КИ (форма с техническими сведениями о субъекте/объекте инцидента)
+      description: "Перечень полей при создании нового уведомления о КИ в API ЛК"
+      type: object
+      properties:
+        category:
+          type: string
+          example: "Уведомление о компьютерном инциденте"
+          description: "Категория уведомления. Значение передается строго из справочника. В данном случае необходимо использовать значение 'Уведомление о компьютерном инциденте'"
+          enum: [ "Уведомление о компьютерном инциденте" ]
+        type: 
+          type: string
+          example: "Заражение ВПО"
+          description: "Тип события ИБ. Значение передается строго из справочника"
+          enum: ["Заражение ВПО", "Замедление работы ресурса в результате DDoS-атаки", "Захват сетевого трафика", "Компрометация учетной записи", "Несанкционированное изменение информации", "Несанкционированное разглашение информации", "Публикация на ресурсе запрещенной законодательством РФ информации", "Успешная эксплуатация уязвимости", "Использование контролируемого ресурса для проведения атак", "Событие не связано с компьютерной атакой"]
+        owner_name:
+          type: string
+          maxLength: 5000
+          description: "Владелец информационного ресурса. В поле передается сокращенное наименование организации, в которой был выявлен инцидент"
+          example: "АО \"Ромашка\""
+        company:
+          description: "Обязательно для заполнения только MSSP провайдерам (т.е. для тех пользователей в ЛК, у которых в ответственности более одной организации). Другие участники информационного обмена не передают это поле. В поле передается сокращенное наименование организации, как указано в разделе «Настройки/Организации» Личного кабинета НКЦКИ"
+          type: string
+          maxLength: 5000
+          example:  "АО \"Ромашка\""
+        assistance: 
+          type: boolean
+          example: true
+          description: "Необходимость привлечения сил ГосСОПКА"
+        tlp:
+          type: string
+          example:  "TLP:GREEN"
+          description: "Ограничительный маркер TLP. Значение передается строго из справочника"
+          enum: [ "TLP:WHITE", "TLP:GREEN", "TLP:AMBER", "TLP:RED" ]
+        detect_time: 
+          type: string
+          format: date-time
+          example: "2020-08-17T15:22:52Z"
+          description: "Дата и время выявления инцидента. Заполняется по правилам стандарта ISO 8601. Используется timeZone UTC. Установлена валидация на вводимые значения: стоит запрет на указание даты из будущего."
+        end_time: 
+          type: string
+          format: date-time
+          example: "2020-08-17T17:22:52Z"
+          description: "Дата и время завершения инцидента. Заполняется по правилам стандарта ISO 8601. Используется timeZone UTC. Установлена валидация на вводимые значения: стоит запрет на указание даты из будущего."
+        activity_status:
+          type: string
+          example: "Проводятся мероприятия по реагированию"
+          description: "Статус реагирования на инцидент. Значение передается строго из справочника"
+          enum: [ "Меры приняты", "Проводятся мероприятия по реагированию", "Возобновлены мероприятия по реагированию", "Инцидент не подтвержден" ]
+        detection_tool:
+          type: string
+          maxLength: 5000
+          example:  "WAF"
+          description: "Сведения о средстве или способе выявления инцидента"
+        affected_system_name:
+          type: string
+          maxLength: 5000
+          example:  "ДБО ФЛ"
+          description: "Наименование контролируемого ресурса, на котором был выявлен компьютерный инцидент"
+        affected_system_category:
+          type: string
+          example:  "Объект КИИ без категории значимости"
+          description: "Информация о категорировании ОКИИ. Значение передается строго из справочника"
+          enum: [ "Информационный ресурс не является объектом КИИ", "Объект КИИ без категории значимости", "Объект КИИ третьей категории значимости", "Объект КИИ второй категории значимости", "Объект КИИ первой категории значимости" ]
+        affected_system_function: 
+          type: string
+          example: "Банковская сфера и иные сферы финансового рынка"
+          description: "Сфера функционирования субъекта. Значение передается строго из справочника"
+          enum: [ "Атомная энергетика", "Банковская сфера и иные сферы финансового рынка", "Горнодобывающая промышленность", "Государственная/муниципальная власть", "Здравоохранение", "Металлургическая промышленность", "Наука", "Оборонная промышленность", "Образование", "Ракетно-космическая промышленность", "Связь", "СМИ", "Топливно-энергетический комплекс", "Транспорт", "Химическая промышленность", "Иная" ]
+        affected_system_connection: 
+          type: boolean
+          example: true
+          description: "Наличие подключения к сети Интернет. Если в данном ключе передается значение true, то API ЛК ожидает в запросе также блок полей с описанием технических сведений об атакованном объекте и атакующей системе"
+        event_description:
+          type: string
+          maxLength: 5000
+          example:  "тестовое уведомление"
+          description: "Краткое описание события ИБ"
+        integrity_impact:
+          type: string
+          example:  "Высокое"
+          description: "Влияние на целостность. Значение передается строго из справочника"
+          enum: [ "Высокое", "Низкое", "Отсутствует" ]
+        availability_impact:
+          type: string
+          example:  "Высокое"
+          description: "Влияние на доступность. Значение передается строго из справочника"
+          enum: [ "Высокое", "Низкое", "Отсутствует" ]
+        confidentiality_impact:
+          type: string
+          example:  "Низкое"
+          description: "Влияние на конфиденциальность. Значение передается строго из справочника"
+          enum: [ "Высокое", "Низкое", "Отсутствует" ]
+        custom_impact:
+          type: string
+          maxLength: 5000
+          example:  "Присвоили информацию"
+          description: "Краткое описание иной формы последствий компьютерного инцидента"
+        location:
+          type: string
+          maxLength: 5000
+          example:  "RU-KYA"
+          description: "Локация. Значение из справочника ISO-3166-2"
+        city:
+          type: string
+          maxLength: 5000
+          example:  "Красноярск"
+          description: "Населенный пункт или геокоординаты"
+          
+  ## ---- блок полей с описанием технических сведений о субъекте и объекте инцидента. Данные поля передаются, если ключ "affected_system_connection" = true. Состав полей этого блока уникален для каждого типа события ИБ --------
+        related_observables_ipv4:
+          type: array
+          description: "Данное поле передается со следующими типами событий ИБ: 'Заражение ВПО', 'Замедление работы ресурса в результате DDoS-атаки', 'Компрометация учетной записи', 'Несанкционированное изменение информации', 'Несанкционированное разглашение информации', 'Успешная эксплуатация уязвимости',  'Событие не связано с компьютерной атакой'. Количество передаваемых символов не должно превышать 5000."
+          items:
+            type: object
+            properties:
+              value:
+                type: string
+                format: ipv4
+                example: "12.12.12.12"
+                description: "IP адрес версии 4 контролируемого ресурса. Производится валидация IPv4"
+        related_observables_ipv6:
+          type: array
+          description: "Данное поле передается со следующими типами событий ИБ: 'Заражение ВПО', 'Замедление работы ресурса в результате DDoS-атаки', 'Компрометация учетной записи', 'Несанкционированное изменение информации', 'Несанкционированное разглашение информации', 'Успешная эксплуатация уязвимости',  'Событие не связано с компьютерной атакой'. Количество передаваемых символов не должно превышать 5000."
+          items:
+            type: object
+            properties:
+              value:
+                type: string
+                format: ipv6
+                example: "9090:5ffd:695e:fec4:8ecf:8bd0:e2d9:37e6"
+                description: "IP адрес версии 6 контролируемого ресурса. Производится валидация IPv6"
+        related_observables_domain:
+          type: array
+          description: "Данный объект передается со следующими типами событий ИБ: 'Заражение ВПО', 'Замедление работы ресурса в результате DDoS-атаки', 'Компрометация учетной записи', 'Несанкционированное изменение информации', 'Несанкционированное разглашение информации', 'Успешная эксплуатация уязвимости',  'Событие не связано с компьютерной атакой'. Количество передаваемых символов не должно превышать 5000."
+          items:
+            type: object
+            properties:
+              value:
+                type: string
+                example: "dbo.rmhk.ru"
+                description: "Доменное имя контролируемого ресурса"
+        related_observables_uri:
+          type: array
+          description: "Данный объект передается со следующими типами событий ИБ: 'Заражение ВПО', 'Замедление работы ресурса в результате DDoS-атаки', 'Компрометация учетной записи', 'Несанкционированное изменение информации', 'Несанкционированное разглашение информации', 'Успешная эксплуатация уязвимости', 'Событие не связано с компьютерной атакой'. Количество передаваемых символов не должно превышать 5000."
+          items:
+            type: object
+            properties:
+              value:
+                type: string
+                example: "https://dbo.rmhk.ru//fl"
+                description: "URI-адрес контролируемого ресурса"
+        related_observables_email:
+          type: array
+          description: "Данный объект передается со следующими типами событий ИБ: 'Заражение ВПО', 'Компрометация учетной записи', 'Несанкционированное разглашение информации', 'Успешная эксплуатация уязвимости',  'Событие не связано с компьютерной атакой'. Количество передаваемых символов не должно превышать 5000."
+          items:
+            type: object
+            properties:
+              value:
+                type: string
+                example: "ivanovmn@rmhk.ru"  
+                description: "Email-адрес контролируемого ресурса. Валидация Email"
+        related_observables_service:
+          type: array
+          description: "Данный объект передается со следующими типами событий ИБ: 'Заражение ВПО', 'Замедление работы ресурса в результате DDoS-атаки', 'Компрометация учетной записи', 'Несанкционированное изменение информации', 'Несанкционированное разглашение информации', 'Успешная эксплуатация уязвимости', 'Событие не связано с компьютерной атакой'. Количество передаваемых символов не должно превышать 5000."
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+                example: "веб"
+                description: "Имя атакованной сетевой службы"
+                type: string
+                example: "443/TCP"
+                description: "Порт/протокол"
+        related_observables_as_path:
+          type: string
+          maxLength: 5000
+          example: "AS4:AS1"
+          description: "AS-Path до атакованной Автономной системы (ASN). Данный объект передается со следующими типами событий ИБ: 'Захват сетевого трафика'"
+
+
+        related_indicators_ipv4:
+          type: array
+          description: "Данный объект передается со следующими типами событий ИБ: 'Заражение ВПО', 'Замедление работы ресурса в результате DDoS-атаки', 'Использование контролируемого ресурса для проведения атак', 'Компрометация учетной записи', 'Несанкционированное изменение информации', 'Несанкционированное разглашение информации', 'Публикация на ресурсе запрещенной законодательством РФ информации', 'Успешная эксплуатация уязвимости'"
+          items:
+            type: object
+            properties:
+              function:
+                type: string
+                example: "Центр управления ВПО"
+                description: "Тип активности. Значение передается строго из справочника. Количество передаваемых символов не должно превышать 5000."
+                enum: [ "Центр управления ВПО", "Элемент инфраструктуры ВПО", "Источник распространения ВПО", "Тип не определен" ]
+              value:
+                type: string
+                format: ipv4
+                example: "5.5.5.5"
+                description: "IP адрес версии 4 источника вредоносной активности. Производится валидация IPv4"
+        related_indicators_ipv6:
+          type: array
+          description: "Данный объект передается со следующими типами событий ИБ: 'Заражение ВПО', 'Замедление работы ресурса в результате DDoS-атаки', 'Использование контролируемого ресурса для проведения атак', 'Компрометация учетной записи', 'Несанкционированное изменение информации', 'Несанкционированное разглашение информации', 'Публикация на ресурсе запрещенной законодательством РФ информации', 'Успешная эксплуатация уязвимости'. Количество передаваемых символов не должно превышать 5000."
+          items:
+            type: object
+            properties:
+              function:
+                type: string
+                example: "Источник распространения ВПО"
+                description: "Тип активности. Значение передается строго из справочника"
+                enum: [ "Центр управления ВПО", "Элемент инфраструктуры ВПО", "Источник распространения ВПО", "Тип не определен" ]
+              value:
+                type: string
+                format: ipv6
+                example: "FF02:0:0:0:0:1:FF00"
+                description: "IP адрес версии 6 источника вредоносной активности. Производится валидация IPv6"
+        related_indicators_domain:
+          type: array
+          description: "Данный объект передается со следующими типами событий ИБ: 'Заражение ВПО', 'Замедление работы ресурса в результате DDoS-атаки', 'Использование контролируемого ресурса для проведения атак', 'Компрометация учетной записи', 'Несанкционированное изменение информации', 'Несанкционированное разглашение информации', 'Публикация на ресурсе запрещенной законодательством РФ информации', 'Успешная эксплуатация уязвимости'. Количество передаваемых символов не должно превышать 5000."
+          items:
+            type: object
+            properties:
+              function:
+                type: string
+                example: "Источник распространения ВПО"
+                description: "Тип активности. Значение передается строго из справочника"
+                enum: [ "Центр управления ВПО", "Элемент инфраструктуры ВПО", "Источник распространения ВПО", "Тип не определен" ]
+              value:
+                type: string
+                example: "badboy.ru"
+                description: "Доменное имя вредоносной системы"
+        related_indicators_uri:
+          type: array
+          description: "Данный объект передается со следующими типами событий ИБ: 'Заражение ВПО', 'Использование контролируемого ресурса для проведения атак', 'Несанкционированное изменение информации', 'Несанкционированное разглашение информации', 'Публикация на ресурсе запрещенной законодательством РФ информации', 'Успешная эксплуатация уязвимости'. Количество передаваемых символов не должно превышать 5000."
+          items:
+            type: object
+            properties:
+              function:
+                type: string
+                example: "Источник распространения ВПО"
+                description: "Тип активности. Значение передается строго из справочника"
+                enum: [ "Центр управления ВПО", "Элемент инфраструктуры ВПО", "Источник распространения ВПО", "Тип не определен" ]
+              value:
+                type: string
+                example: "https://badboy.com//efweW42ERFSA" 
+                description: "URI-адрес вредоносной системы"
+        related_indicators_email:
+          type: array
+          description: "Данный объект передается со следующими типами событий ИБ: 'Заражение ВПО', 'Несанкционированное разглашение информации', 'Успешная эксплуатация уязвимости', 'Использование контролируемого ресурса для проведения атак'. Количество передаваемых символов не должно превышать 5000."
+          items:
+            type: object
+            properties:
+              value:
+                type: string
+                example: "admin@badboy.com" 
+                description: "Email-адрес вредоносного объекта. Валидация Email"
+        malware_hash:
+          type: array
+          description: "Данный объект передается со следующими типами событий ИБ: 'Заражение ВПО','Использование контролируемого ресурса для проведения атак'. Количество передаваемых символов не должно превышать 5000."
+          items:
+            type: object
+            properties:
+              value:
+                type: string
+                example: "837b05ef39ba55332d5ec44804e2daa0" 
+                description: "Хеш-сумма вредоносного модуля"
+        related_indicators_vuln:
+              type: array
+              description: "Данный объект передается со следующими типами событий ИБ: 'Заражение ВПО', 'Замедление работы ресурса в результате DDoS-атаки', 'Использование контролируемого ресурса для проведения атак', 'Компрометация учетной записи', 'Несанкционированное изменение информации', 'Несанкционированное разглашение информации', 'Публикация на ресурсе запрещенной законодательством РФ информации', 'Успешная эксплуатация уязвимости'. Количество передаваемых символов не должно превышать 5000."
+              items:
+                type: object
+                properties:
+                  value:
+                    type: string
+                    example: "такая-то уязвимость была задействована" 
+                    description: "Описание используемых уязвимостей"
+        related_indicators_asn:
+          type: string
+          maxLength: 5000
+          example: "6210" 
+          description: "Номер подставной Автономной системы (ASN). Данные значение передается со следующими типами событий ИБ: 'Захват сетевого трафика'"
+        related_indicators_as:
+          type: string
+          maxLength: 5000
+          example: "Orange" 
+          description: "Наименование AS. Данные значение передается со следующими типами событий ИБ: 'Захват сетевого трафика'"
+        related_indicators_as_lir:
+          type: string
+          maxLength: 5000
+          example: "LIR" 
+          description: "Наименование LIR. Данные значение передается со следующими типами событий ИБ: 'Захват сетевого трафика'"
+  ## ------- конец блока полей с описанием технических сведений об атакованном объекте и атакующей системе ---------     
+    
+    NewNotificationCAnotNet:
+      required:
+        - company
+        - category
+        - owner_name
+        - type
+        - event_description
+        - tlp
+        - detect_time
+        - activity_status
+        - affected_system_name
+        - affected_system_category
+        - affected_system_function
+        - location
+      title: Создание уведомления о КА (форма без технических сведений о субъекте/объекте инцидента)
+      description: >- 
+        Перечень полей при создании нового уведомления о КА в API ЛК. Объект (в отношении которого
+        произошла атака, не имеет подключения к сети Интернет)
+      type: object
+      properties:
+        category:
+          type: string
+          example: "Уведомление о компьютерной атаке"
+          description: "Категория уведомления. Значение передается строго из справочника. В данном случае необходимо использовать значение 'Уведомление о компьютерной атаке'"
+          enum: [ "Уведомление о компьютерной атаке"]
+        type: 
+          type: string
+          example: "Попытки внедрения ВПО"
+          description: "Тип события ИБ. Значение передается строго из справочника"
+          enum: [ "DDoS-атака", "Неудачные попытки авторизации", "Попытки внедрения ВПО", "Попытки эксплуатации уязвимости", "Публикация мошеннической информации", "Сетевое сканирование", "Социальная инженерия" ]
+        owner_name:
+          type: string
+          maxLength: 5000
+          description: "Владелец информационного ресурса. В поле передается сокращенное наименование организации, в которой был выявлен инцидент"
+          example: "АО \"Ромашка\""
+        company:
+          description: "Обязательно для заполнения только MSSP провайдерам (т.е. для тех пользователей в ЛК, у которых в ответственности более одной организации). Другие участники информационного обмена не передают это поле. В поле передается сокращенное наименование организации, как указано в разделе 'Настройки/Организации' Личного кабинета НКЦКИ"
+          type: string
+          maxLength: 5000
+          example:  "АО \"Ромашка\""
+        assistance: 
+          type: boolean
+          example: true
+          description: "Необходимость привлечения сил ГосСОПКА"
+        tlp:
+          type: string
+          example:  "TLP:GREEN"
+          description: "Ограничительный маркер TLP. Значение передается строго из справочника"
+          enum: [ "TLP:WHITE", "TLP:GREEN", "TLP:AMBER", "TLP:RED" ]
+        detect_time: 
+          type: string
+          format: date-time
+          example: "2020-08-17T15:22:52Z"
+          description: "Дата и время выявления инцидента. Заполняется по правилам стандарта ISO 8601.  Используется timeZone UTC. Установлена валидация на вводимые значения: стоит запрет на указание даты из будущего."
+        end_time: 
+          type: string
+          format: date-time
+          example: "2020-08-17T17:22:52Z"
+          description: "Дата и время завершения инцидента. Заполняется по правилам стандарта ISO 8601.  Используется timeZone UTC. Установлена валидация на вводимые значения: стоит запрет на указание даты из будущего."
+        activity_status:
+          type: string
+          example: "Проводятся мероприятия по реагированию"
+          description: "Статус реагирования на инцидент. Значение передается строго из справочника"
+          enum: [ "Меры приняты", "Проводятся мероприятия по реагированию", "Возобновлены мероприятия по реагированию", "Инцидент не подтвержден" ]
+        detection_tool:
+          type: string
+          maxLength: 5000
+          example:  "WAF"
+          description: "Сведения о средстве или способе выявления инцидента"
+        affected_system_name:
+          type: string
+          maxLength: 5000
+          example:  "ДБО ФЛ"
+          description: "Наименование контролируемого ресурса, на котором был выявлен компьютерный инцидент"
+        affected_system_category:
+          type: string
+          example:  "Объект КИИ без категории значимости"
+          description: "Информация о категорировании ОКИИ. Значение передается строго из справочника"
+          enum: [ "Информационный ресурс не является объектом КИИ", "Объект КИИ без категории значимости", "Объект КИИ третьей категории значимости", "Объект КИИ второй категории значимости", "Объект КИИ первой категории значимости" ]
+        affected_system_function: 
+          type: string
+          example: "Банковская сфера и иные сферы финансового рынка"
+          description: "Сфера функционирования субъекта. Значение передается строго из справочника"
+          enum: [ "Атомная энергетика", "Банковская сфера и иные сферы финансового рынка", "Горнодобывающая промышленность", "Государственная/муниципальная власть", "Здравоохранение", "Металлургическая промышленность", "Наука", "Оборонная промышленность", "Образование", "Ракетно-космическая промышленность", "Связь", "СМИ", "Топливно-энергетический комплекс", "Транспорт", "Химическая промышленность", "Иная" ]
+        affected_system_connection: 
+          type: boolean
+          example: false
+          description: "Наличие подключения к сети Интернет. В данном передается значение равное false"
+        event_description:
+          type: string
+          maxLength: 5000
+          example:  "тестовое уведомление"
+          description: "Краткое описание события ИБ"
+        integrity_impact:
+          type: string
+          example:  "Высокое"
+          description: "Влияние на целостность. Значение передается строго из справочника"
+          enum: [ "Высокое", "Низкое", "Отсутствует" ]
+        availability_impact:
+          type: string
+          example:  "Высокое"
+          description: "Влияние на доступность. Значение передается строго из справочника"
+          enum: [ "Высокое", "Низкое", "Отсутствует" ]
+        confidentiality_impact:
+          type: string
+          example:  "Низкое"
+          description: "Влияние на конфиденциальность. Значение передается строго из справочника"
+          enum: [ "Высокое", "Низкое", "Отсутствует" ]
+        custom_impact:
+          type: string
+          maxLength: 5000
+          example:  "Присвоили информацию"
+          description: "Краткое описание иной формы последствий компьютерного инцидента"
+        location:
+          type: string
+          maxLength: 5000
+          example:  "RU-KYA"
+          description: "Локация. Значение из справочника ISO-3166-2"
+        city:
+          type: string
+          maxLength: 5000
+          example:  "Красноярск"
+          description: "Населенный пункт или геокоординаты"
+    
+    NewNotificationCA:
+      required:
+        - company
+        - category
+        - type
+        - owner_name
+        - event_description
+        - tlp
+        - detect_time
+        - activity_status
+        - affected_system_name
+        - affected_system_category
+        - affected_system_function
+        - location
+      title: Создание уведомления о КА (форма с техническими сведениями о субъекте/объекте инцидента)
+      description: "Перечень полей при создании нового уведомления о КА в ЛК"
+      type: object
+      properties:
+        category:
+          type: string
+          example: "Уведомление о компьютерной атаке"
+          description: "Категория уведомления. Значение передается строго из справочника. В данном случае необходимо использовать значение 'Уведомление о компьютерной атаке'"
+          enum: [ "Уведомление о компьютерной атаке" ]
+        type: 
+          type: string
+          example: "Попытки внедрения ВПО"
+          description: "Тип события ИБ. Значение передается строго из справочника"
+          enum: [ "DDoS-атака", "Неудачные попытки авторизации", "Попытки внедрения ВПО", "Попытки эксплуатации уязвимости", "Публикация мошеннической информации", "Сетевое сканирование", "Социальная инженерия" ]
+        owner_name:
+          type: string
+          maxLength: 5000
+          description: "Владелец информационного ресурса. В поле передается сокращенное наименование организации, в которой был выявлен инцидент"
+          example: "АО \"Ромашка\""
+        company:
+          description: "Обязательно для заполнения только MSSP провайдерам (т.е. для тех пользователей в ЛК, у которых в ответственности более одной организации). Другие участники информационного обмена не передают это поле. В поле передается сокращенное наименование организации, как указано в разделе 'Настройки/Организации' Личного кабинета НКЦКИ"
+          type: string
+          maxLength: 5000
+          example:  "АО \"Ромашка\""
+        assistance: 
+          type: boolean
+          example: true
+          description: "Необходимость привлечения сил ГосСОПКА"
+        tlp:
+          type: string
+          example:  "TLP:GREEN"
+          description: "Ограничительный маркер TLP. Значение передается строго из справочника"
+          enum: [ "TLP:WHITE", "TLP:GREEN", "TLP:AMBER", "TLP:RED" ]
+        detect_time: 
+          type: string
+          format: date-time
+          example: "2020-08-17T15:22:52Z"
+          description: "Дата и время выявления инцидента. Заполняется по правилам стандарта ISO 8601.  Используется timeZone UTC. Установлена валидация на вводимые значения: стоит запрет на указание даты из будущего."
+        end_time: 
+          type: string
+          format: date-time
+          example: "2020-08-17T17:22:52Z"
+          description: "Дата и время завершения инцидента. Заполняется по правилам стандарта ISO 8601.  Используется timeZone UTC. Установлена валидация на вводимые значения: стоит запрет на указание даты из будущего."
+        activity_status:
+          type: string
+          example: "Проводятся мероприятия по реагированию"
+          description: "Статус реагирования на инцидент. Значение передается строго из справочника"
+          enum: [ "Меры приняты", "Проводятся мероприятия по реагированию", "Возобновлены мероприятия по реагированию", "Инцидент не подтвержден" ]
+        detection_tool:
+          type: string
+          maxLength: 5000
+          example:  "WAF"
+          description: "Сведения о средстве или способе выявления инцидента"
+        affected_system_name:
+          type: string
+          maxLength: 5000
+          example:  "ДБО ФЛ"
+          description: "Наименование контролируемого ресурса, на котором был выявлен компьютерный инцидент"
+        affected_system_category:
+          type: string
+          example:  "Объект КИИ без категории значимости"
+          description: "Информация о категорировании ОКИИ. Значение передается строго из справочника"
+          enum: [ "Информационный ресурс не является объектом КИИ", "Объект КИИ без категории значимости", "Объект КИИ третьей категории значимости", "Объект КИИ второй категории значимости", "Объект КИИ первой категории значимости" ]
+        affected_system_function: 
+          type: string
+          example: "Банковская сфера и иные сферы финансового рынка"
+          description: "Сфера функционирования субъекта. Значение передается строго из справочника"
+          enum: [ "Атомная энергетика", "Банковская сфера и иные сферы финансового рынка", "Горнодобывающая промышленность", "Государственная/муниципальная власть", "Здравоохранение", "Металлургическая промышленность", "Наука", "Оборонная промышленность", "Образование", "Ракетно-космическая промышленность", "Связь", "СМИ", "Топливно-энергетический комплекс", "Транспорт", "Химическая промышленность", "Иная" ]
+        affected_system_connection: 
+          type: boolean
+          example: true
+          description: "Наличие подключения к сети Интернет. Если в данном ключе передается значение true, то API ЛК ожидает в запросе также блок полей с описанием технических сведений об атакованном объекте и атакующей системе"
+        event_description:
+          type: string
+          maxLength: 5000
+          example:  "тестовое уведомление"
+          description: "Краткое описание события ИБ"
+        integrity_impact:
+          type: string
+          example:  "Высокое"
+          description: "Влияние на целостность. Значение передается строго из справочника"
+          enum: [ "Высокое", "Низкое", "Отсутствует" ]
+        availability_impact:
+          type: string
+          example:  "Высокое"
+          description: "Влияние на доступность. Значение передается строго из справочника"
+          enum: [ "Высокое", "Низкое", "Отсутствует" ]
+        confidentiality_impact:
+          type: string
+          example:  "Низкое"
+          description: "Влияние на конфиденциальность. Значение передается строго из справочника"
+          enum: [ "Высокое", "Низкое", "Отсутствует" ]
+        custom_impact:
+          type: string
+          maxLength: 5000
+          example:  "Присвоили информацию"
+          description: "Краткое описание иной формы последствий компьютерного инцидента"
+        location:
+          type: string
+          maxLength: 5000
+          example:  "RU-KYA"
+          description: "Локация. Значение из справочника ISO-3166-2"
+        city:
+          type: string
+          maxLength: 5000
+          example:  "Красноярск"
+          description: "Населенный пункт или геокоординаты"
+          
+  ## ---- блок полей с описанием технических сведений об атакованном объекте и вредоносной системе. Данные поля передаются, если ключ "affected_system_connection" = true. Состав полей этого блока уникален для каждого типа события ИБ" --------
+        related_observables_ipv4:
+          type: array
+          description: "Данный объект передается со следующими типами событий ИБ: 'DDoS-атака', 'Неудачные попытки авторизации', 'Попытки внедрения ВПО', 'Попытки эксплуатации уязвимости', 'Публикация мошеннической информации', 'Сетевое сканирование', 'Социальная инженерия'. Количество передаваемых символов не должно превышать 5000."
+          items:
+            type: object
+            properties:
+              value:
+                type: string
+                format: ipv4
+                example: "12.12.12.12"
+                description: "IP адрес версии 4 контролируемого ресурса. Производится валидация IPv4"
+        related_observables_ipv6:
+          type: array
+          description: "Данный объект передается со следующими типами событий ИБ: 'DDoS-атака', 'Неудачные попытки авторизации', 'Попытки внедрения ВПО', 'Попытки эксплуатации уязвимости', 'Публикация мошеннической информации', 'Сетевое сканирование', 'Социальная инженерия'. Количество передаваемых символов не должно превышать 5000."
+          items:
+            type: object
+            properties:
+              value:
+                type: string
+                format: ipv6
+                example: "9090:5ffd:695e:fec4:8ecf:8bd0:e2d9:37e6"
+                description: "IP адрес версии 6 контролируемого ресурса. Производится валидация IPv6"
+        related_observables_domain:
+          type: array
+          description: "Данный объект передается со следующими типами событий ИБ: 'DDoS-атака', 'Неудачные попытки авторизации', 'Попытки внедрения ВПО', 'Попытки эксплуатации уязвимости', 'Публикация мошеннической информации', 'Сетевое сканирование', 'Социальная инженерия'. Количество передаваемых символов не должно превышать 5000."
+          items:
+            type: object
+            properties:
+              value:
+                type: string
+                example: "dbo.rmhk.ru"
+                description: "Доменное имя контролируемого ресурса"
+        related_observables_uri:
+          type: array
+          description: "Данный объект передается со следующими типами событий ИБ: 'DDoS-атака', 'Неудачные попытки авторизации', 'Попытки внедрения ВПО', 'Попытки эксплуатации уязвимости', 'Публикация мошеннической информации', 'Сетевое сканирование', 'Социальная инженерия'. Количество передаваемых символов не должно превышать 5000."
+          items:
+            type: object
+            properties:
+              value:
+                type: string
+                example: "https://dbo.rmhk.ru//fl"
+                description: "URI-адрес контролируемого ресурса"
+        related_observables_email:
+          type: array
+          description: "Данный объект передается со следующими типами событий ИБ: 'Неудачные попытки авторизации', 'Попытки внедрения ВПО', 'Попытки эксплуатации уязвимости', 'Социальная инженерия'. Количество передаваемых символов не должно превышать 5000."
+          items:
+            type: object
+            properties:
+              value:
+                type: string
+                example: "ivanovmn@rmhk.ru"  
+                description: "Email-адрес контролируемого ресурса. Валидация Email"
+        related_observables_service:
+          type: array
+          description: "Данный объект передается со следующими типами событий ИБ: 'DDoS-атака', 'Неудачные попытки авторизации', 'Попытки внедрения ВПО', 'Попытки эксплуатации уязвимости', 'Публикация мошеннической информации', 'Сетевое сканирование', 'Социальная инженерия'. Количество передаваемых символов не должно превышать 5000."
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+                example: "веб"
+                description: "Имя атакованной сетевой службы"
+              value:
+                type: string
+                example: "443/TCP"
+                description: "Порт/протокол"
+                
+        related_indicators_ipv4:
+          type: array
+          description: "Данный объект передается со следующими типами событий ИБ: 'DDoS-атака', 'Неудачные попытки авторизации', 'Попытки внедрения ВПО', 'Попытки эксплуатации уязвимости', 'Публикация мошеннической информации', 'Сетевое сканирование', 'Социальная инженерия'. Количество передаваемых символов не должно превышать 5000."
+          items:
+            type: object
+            properties:
+              function:
+                type: string
+                example: "Центр управления ВПО"
+                description: "Тип активности. Значение передается строго из справочника"
+                enum: [ "Центр управления ВПО", "Элемент инфраструктуры ВПО", "Источник распространения ВПО", "Тип не определен" ]
+              value:
+                type: string
+                format: ipv4
+                example: "5.5.5.5" 
+                description: "IP адрес версии 4 источника вредоносной активности. Производится валидация IPv4"
+        related_indicators_ipv6:
+          type: array
+          description: "Данный объект передается со следующими типами событий ИБ: 'DDoS-атака', 'Неудачные попытки авторизации', 'Попытки внедрения ВПО', 'Попытки эксплуатации уязвимости', 'Публикация мошеннической информации', 'Сетевое сканирование', 'Социальная инженерия'. Количество передаваемых символов не должно превышать 5000."
+          items:
+            type: object
+            properties:
+              function:
+                type: string
+                example: "Источник распространения ВПО"
+                description: "Тип активности. Значение передается строго из справочника"
+                enum: [ "Центр управления ВПО", "Элемент инфраструктуры ВПО", "Источник распространения ВПО", "Тип не определен" ]
+              value:
+                type: string
+                format: ipv6
+                example: "FF02:0:0:0:0:1:FF00" 
+                description: "IP адрес версии 6 источника вредоносной активности. Производится валидация IPv6"
+        related_indicators_domain:
+          type: array
+          description: "Данный объект передается со следующими типами событий ИБ: 'DDoS-атака', 'Неудачные попытки авторизации', 'Попытки внедрения ВПО', 'Попытки эксплуатации уязвимости', 'Публикация мошеннической информации', 'Сетевое сканирование', 'Социальная инженерия'. Количество передаваемых символов не должно превышать 5000."
+          items:
+            type: object
+            properties:
+              function:
+                type: string
+                example: "Источник распространения ВПО"
+                description: "Тип активности. Значение передается строго из справочника"
+                enum: [ "Центр управления ВПО", "Элемент инфраструктуры ВПО", "Источник распространения ВПО", "Тип не определен" ]
+              value:
+                type: string
+                example: "badboy.ru"
+                description: "Доменное имя вредоносной системы"
+        related_indicators_uri:
+          type: array
+          description: "Данный объект передается со следующими типами событий ИБ: 'Попытки внедрения ВПО', 'Попытки эксплуатации уязвимости', 'Публикация мошеннической информации', 'Социальная инженерия'. Количество передаваемых символов не должно превышать 5000."
+          items:
+            type: object
+            properties:
+              function:
+                type: string
+                example: "Источник распространения ВПО"
+                description: "Тип активности. Значение передается строго из справочника"
+                enum: [ "Центр управления ВПО", "Элемент инфраструктуры ВПО", "Источник распространения ВПО", "Тип не определен" ]
+              value:
+                type: string
+                example: "https://badboy.com//efweW42ERFSA" 
+                description: "URI-адрес вредоносной системы"
+        related_indicators_email:
+          type: array
+          description: "Данный объект передается со следующими типами событий ИБ: 'Попытки внедрения ВПО', 'Попытки эксплуатации уязвимости', 'Социальная инженерия'. Количество передаваемых символов не должно превышать 5000."
+          items:
+            type: object
+            properties:
+              value:
+                type: string
+                example: "admin@badboy.com" 
+                description: "Email-адрес вредоносного объекта. Валидация Email"
+        malware_hash:
+          type: array
+          description: "Данный объект передается со следующими типами событий ИБ: 'Попытки внедрения ВПО'. Количество передаваемых символов не должно превышать 5000."
+          items:
+            type: object
+            properties:
+              value:
+                type: string
+                example: "837b05ef39ba55332d5ec44804e2daa0" 
+                description: "Хеш-сумма вредоносного модуля"
+        related_indicators_vuln:
+          type: array
+          description: "Данный объект передается со следующими типами событий ИБ: 'DDoS-атака', 'Неудачные попытки авторизации', 'Попытки внедрения ВПО', 'Попытки эксплуатации уязвимости', 'Публикация мошеннической информации', 'Сетевое сканирование', 'Социальная инженерия'. Количество передаваемых символов не должно превышать 5000."
+          items:
+            type: object
+            properties:
+              value:
+                type: string
+                example: "такая-то уязвимость была задействована" 
+                description: "Описание используемых уязвимостей"
+  ## ------- конец блока полей с описанием технических сведений об атакованном объекте и атакующей системе ---------     
+
+    NewNotificationRKN:
+      required:
+        - company
+        - category
+        - owner_name
+        - type
+        - event_description
+        - tlp
+        - detect_time
+        - activity_status
+        - affected_system_name
+        - affected_system_category
+        - affected_system_function
+        - location
+        - rkn_leak_pd
+        - rkn_inn
+        - rkn_full_name
+        - rkn_address
+        - rkn_email
+        - rkn_reasons
+        - rkn_pers_data
+        - rkn_damage
+
+      title: Создание уведомления о КИ в случае утечки персональных данных
+      description: >- 
+        Перечень полей при создании уведомления о КИ в случае утечки персональных данных
+      type: object
+      properties:
+        category:
+          type: string
+          example: "Уведомление о компьютерном инциденте"
+          description: "Категория уведомления. Значение передается строго из справочника. В данном случае необходимо использовать значение 'Уведомление о компьютерном инциденте'"
+          enum: [ "Уведомление о компьютерном инциденте" ]
+        type:
+          type: string
+          example: "Заражение ВПО"
+          description: "Тип события ИБ. Значение передается строго из справочника"
+          enum: [ "Заражение ВПО", "Компрометация учетной записи", "Несанкционированное разглашение информации", "Успешная эксплуатация уязвимости", "Событие не связано с компьютерной атакой" ]
+        owner_name:
+          type: string
+          maxLength: 5000
+          description: "Владелец информационного ресурса. В поле передается сокращенное наименование организации, в которой был выявлен инцидент"
+          example: "АО \"Ромашка\""
+        company:
+          description: "Обязательно для заполнения только MSSP провайдерам (т.е. для тех пользователей в ЛК, у которых в ответственности более одной организации). Другие участники информационного обмена не передают это поле. В поле передается сокращенное наименование организации, как указано в разделе «Настройки/Организации» Личного кабинета НКЦКИ"
+          type: string
+          maxLength: 5000
+          example:  "АО \"Ромашка\""
+        assistance:
+          type: boolean
+          example: true
+          description: "Необходимость привлечения сил ГосСОПКА"
+        tlp:
+          type: string
+          example:  "TLP:GREEN"
+          description: "Ограничительный маркер TLP. Значение передается строго из справочника"
+          enum: [ "TLP:WHITE", "TLP:GREEN", "TLP:AMBER", "TLP:RED" ]
+        detect_time:
+          type: string
+          format: date-time
+          example: "2020-08-17T15:22:52Z"
+          description: "Дата и время выявления инцидента. Заполняется по правилам стандарта ISO 8601.  Используется timeZone UTC. Установлена валидация на вводимые значения: стоит запрет на указание даты из будущего."
+        end_time:
+          type: string
+          format: date-time
+          example: "2020-08-17T17:22:52Z"
+          description: "Дата и время завершения инцидента. Заполняется по правилам стандарта ISO 8601.  Используется timeZone UTC. Установлена валидация на вводимые значения: стоит запрет на указание даты из будущего."
+        activity_status:
+          type: string
+          example: "Проводятся мероприятия по реагированию"
+          description: "Статус реагирования на инцидент. Значение передается строго из справочника"
+          enum: [ "Меры приняты", "Проводятся мероприятия по реагированию", "Возобновлены мероприятия по реагированию", "Инцидент не подтвержден" ]
+        detection_tool:
+          type: string
+          maxLength: 5000
+          example:  "WAF"
+          description: "Сведения о средстве или способе выявления инцидента"
+        affected_system_name:
+          type: string
+          maxLength: 5000
+          example:  "ДБО ФЛ"
+          description: "Наименование контролируемого ресурса, на котором был выявлен компьютерный инцидент"
+        affected_system_category:
+          type: string
+          example:  "Объект КИИ без категории значимости"
+          description: "Информация о категорировании ОКИИ. Значение передается строго из справочника"
+          enum: [ "Информационный ресурс не является объектом КИИ", "Объект КИИ без категории значимости", "Объект КИИ третьей категории значимости", "Объект КИИ второй категории значимости", "Объект КИИ первой категории значимости" ]
+        affected_system_function:
+          type: string
+          example: "Банковская сфера и иные сферы финансового рынка"
+          description: "Сфера функционирования субъекта. Значение передается строго из справочника"
+          enum: [ "Атомная энергетика", "Банковская сфера и иные сферы финансового рынка", "Горнодобывающая промышленность", "Государственная/муниципальная власть", "Здравоохранение", "Металлургическая промышленность", "Наука", "Оборонная промышленность", "Образование", "Ракетно-космическая промышленность", "Связь", "СМИ", "Топливно-энергетический комплекс", "Транспорт", "Химическая промышленность", "Иная" ]
+        affected_system_connection:
+          type: boolean
+          example: true
+          description: "Наличие подключения к сети Интернет. Если в данном ключе передается значение true, то API ЛК ожидает в запросе также блок полей с описанием технических сведений об атакованном объекте и атакующей системе"
+        event_description:
+          type: string
+          maxLength: 5000
+          example:  "тестовое уведомление"
+          description: "Краткое описание события ИБ"
+        integrity_impact:
+          type: string
+          example:  "Высокое"
+          description: "Влияние на целостность. Значение передается строго из справочника"
+          enum: [ "Высокое", "Низкое", "Отсутствует" ]
+        availability_impact:
+          type: string
+          example:  "Высокое"
+          description: "Влияние на доступность. Значение передается строго из справочника"
+          enum: [ "Высокое", "Низкое", "Отсутствует" ]
+        confidentiality_impact:
+          type: string
+          example:  "Низкое"
+          description: "Влияние на конфиденциальность. Значение передается строго из справочника"
+          enum: [ "Высокое", "Низкое", "Отсутствует" ]
+        custom_impact:
+          type: string
+          maxLength: 5000
+          example:  "Присвоили информацию"
+          description: "Краткое описание иной формы последствий компьютерного инцидента"
+        location:
+          type: string
+          maxLength: 5000
+          example:  "RU-KYA"
+          description: "Локация. Значение из справочника ISO-3166-2"
+
+        city:
+          type: string
+          maxLength: 5000
+          example:  "Красноярск"
+          description: "Населенный пункт или геокоординаты"
+
+        rkn_leak_pd:
+          type: boolean
+          example: true
+          description: 'Утечка ПДн. В случае возникновения утечки персональных данных необходимо передать данное поле со значением true'
+
+        rkn_full_name:
+          type: string
+          example: "Акционерное Общество \"Ромашка\""
+          description: "Наименование оператора"
+          maxLength: 5000
+
+        rkn_inn:
+          type: number
+          example: 500100732250
+          description: "ИНН"
+          maxLength: 5000
+
+        rkn_address:
+          type: string
+          example: "г. Санкт-Петербург, ул. Ромашкина, 152"
+          description: "Адрес оператора"
+          maxLength: 5000
+
+        rkn_email:
+          type: string
+          example: "romashka@romashka.ru"
+          description: "Адрес электронной почты для отправки информации об уведомлении"
+          maxLength: 5000
+
+        rkn_reasons:
+          type: string
+          example: "Хакерская атака на сайт"
+          description: "Предполагаемые причины, повлекшие нарушение прав субъектов ПД"
+          maxLength: 5000
+
+        rkn_pers_data:
+          type: string
+          example: "Клиенты интернет магазина, примерное количество N контактов. В содержащихся записях были указаны номера телефонов, адреса электронной почты, адреса доставки и имена."
+          description: "Характеристики персональных данных"
+          maxLength: 5000
+
+        rkn_damage:
+          type: string
+          example: "Вред правам субъектов персональных данных – низкий."
+          description: "Предполагаемый вред, нанесенный правам субъектов ПД"
+          maxLength: 5000
+
+        rkn_measures:
+          type: string
+          example: "Сразу же после выявления инцидента были приняты меры по устранению вирусов и вредоносных программ, запущенных на сайте, а так же проведён полный аудит и принят комплекс мер по усилению защиты сайта."
+          description: "Принятые меры по устранению последствий инцидента"
+          maxLength: 5000
+
+        rkn_add_info:
+          type: string
+          example: "Дополнительный сведения"
+          description: "Дополнительный сведения"
+          maxLength: 5000
+
+        rkn_investigation:
+          type: string
+          example: "Хакерская атака на сайт компании, повлекшая за собой распространение данных пользователей и вывод сайта из состояния работоспособности."
+          description: "Информация о результатах внутреннего расследования инцидента"
+          maxLength: 5000
+
+    AdditionDataCI:
+      required:
+        - uuid
+        - company
+      title: Изменение/добавление данных по уведомлению о КИ
+      description: "Перечень полей, по которым можно передавать дополнения/изменения в карточку уведомления о КИ"
+      type: object
+      properties:
+        uuid: 
+          type: string
+          maxLength: 5000
+          example: "b09da8fd-b50c-4161-7777-cd7e2f428abb"
+          description: "Уникальный идентификатор карточки уведомления"
+        company:
+          description: "Обязательно для заполнения только MSSP провайдерам (т.е. для тех пользователей в ЛК, у которых в ответственности более одной организации). Другие участники информационного обмена не передают это поле. В поле передается сокращенное наименование организации, как указано в разделе 'Настройки/Организации' Личного кабинета НКЦКИ"
+          type: string
+          maxLength: 5000
+          example:  "АО \"Ромашка\""
+        end_time: 
+          type: string
+          format: date-time
+          example: "2020-08-17T17:22:52Z"
+          description: "Дата и время завершения инцидента. Заполняется по правилам стандарта ISO 8601.  Используется timeZone UTC. Установлена валидация на вводимые значения: стоит запрет на указание даты из будущего."
+        status:
+          type: string
+          example: "Проверка НКЦКИ"
+          description: "Статус уведомления"
+          enum: [ "Проверка НКЦКИ" ]
+        activity_status:
+          type: string
+          example: "Проводятся мероприятия по реагированию на инцидент"
+          description: "Статус реагирования на инцидент. Значение передается строго из справочника"
+          enum: [ "Меры приняты", "Проводятся мероприятия по реагированию", "Возобновлены мероприятия по реагированию", "Инцидент не подтвержден" ]
+        detection_tool:
+          type: string
+          maxLength: 5000
+          example:  "WAF"
+          description: "Сведения о средстве или способе выявления инцидента"
+        event_description:
+          type: string
+          maxLength: 5000
+          example:  "тестовое уведомление"
+          description: "Краткое описание события ИБ"
+        city:
+          type: string
+          maxLength: 5000
+          example:  "Красноярск"
+          description: "Населенный пункт или геокоординаты"
+        integrity_impact:
+          type: string
+          example:  "Высокое"
+          description: "Влияние на целостность. Значение передается строго из справочника"
+          enum: [ "Высокое", "Низкое", "Отсутствует" ]
+        availability_impact:
+          type: string
+          example:  "Высокое"
+          description: "Влияние на доступность. Значение передается строго из справочника"
+          enum: [ "Высокое", "Низкое", "Отсутствует" ]
+        confidentiality_impact:
+          type: string
+          example:  "Низкое"
+          description: "Влияние на конфиденциальность. Значение передается строго из справочника"
+          enum: [ "Высокое", "Низкое", "Отсутствует" ]
+        custom_impact:
+          type: string
+          maxLength: 5000
+          example:  "Присвоили информацию"
+          description: "Краткое описание иной формы последствий компьютерного инцидента"
+    
+    AdditionDataCACV:
+      required:
+        - uuid
+        - company
+        - status
+      title: Изменение/добавление данных по уведомлению о КА
+      description: "Перечень полей, по которым можно передавать дополнения/изменения в карточку уведомления о КА"
+      type: object
+      properties:
+        uuid: 
+          type: string
+          maxLength: 5000
+          example: "b09da8fd-b50c-4161-7777-cd7e2f428abb"
+          description: "Уникальный идентификатор карточки уведомления"
+        company:
+          description: "Обязательно для заполнения только MSSP провайдерам (т.е. для тех пользователей в ЛК, у которых в ответственности более одной организации). Другие участники информационного обмена не передают это поле. В поле передается сокращенное наименование организации, как указано в разделе 'Настройки/Организации' Личного кабинета НКЦКИ"
+          type: string
+          maxLength: 5000
+          example:  "АО \"Ромашка\""
+        end_time: 
+          type: string
+          format: date-time
+          example: "2020-08-17T17:22:52Z"
+          description: "Дата и время завершения инцидента. Заполняется по правилам стандарта ISO 8601.  Используется timeZone UTC. Установлена валидация на вводимые значения: стоит запрет на указание даты из будущего."
+        status:
+          type: string
+          example: "Проверка НКЦКИ"
+          description: "Статус уведомления"
+          enum: [ "Проверка НКЦКИ" ]
+        activity_status:
+          type: string
+          example: "Проводятся мероприятия по реагированию на инцидент"
+          description: "Статус реагирования на инцидент. Значение передается строго из справочника"
+          enum: [ "Меры приняты", "Проводятся мероприятия по реагированию", "Возобновлены мероприятия по реагированию", "Инцидент не подтвержден" ]
+        detection_tool:
+          type: string
+          maxLength: 5000
+          example:  "WAF"
+          description: "Сведения о средстве или способе выявления инцидента"
+        event_description:
+          type: string
+          maxLength: 5000
+          example:  "тестовое уведомление"
+          description: "Краткое описание события ИБ"
+        city:
+          type: string
+          maxLength: 5000
+          example:  "Красноярск"
+          description: "Населенный пункт или геокоординаты"
+          
+    Comments:
+      example: {"incident.uuid": "35093195-2854-459a-810f-a9fd603d0e07",
+                "data": {"comment": "Комментарий"}
+               }
+      title: Комментарии. Создание комментариев
+      type: object
+      properties:
+        incident.uuid:
+          type: string
+          example: "35093195-2854-459a-810f-a9fd603d0e07"
+          description: "Идентификатор уведомления"
+        data:
+          type: object
+          properties:
+            comment:
+              type: string
+              example: hello
+              description: "Комментарий"
+
+    CommentsMianFilter:
+      example: 'filter=[{"property":"incident_uuid","operator":"eq","value":"01d238ec-0a4e-4cd4-9647-ac535bc50c14"}]&sort=[{"property":"create_time", "direction":"ASC"}]&limit=10&offset=0'
+      title: Комментарии. Описание параметров
+      type: object
+      properties:
+        filter:
+          type: array
+          items:
+            $ref: '#/components/schemas/CommentFilter'
+        sort:
+          example: 'sort=[{"property":"create_time", "direction":"ASC"}]'
+          type: array
+          items:
+            $ref: '#/components/schemas/CommentSorting'
+        limit:
+          $ref: '#/components/schemas/Limit'
+        offset:
+          $ref: '#/components/schemas/Offset'
+          
+  
+    CommentFilter:
+      title: Комментарии. Filter
+      description: >- 
+          Описание формирования фильтра в параметрах GET запроса для получения комментариев карточки уведомлений
+      type: array
+      items:
+        type: object
+        properties:
+          property:
+            type: string
+            enum: [ "login", "create_time", "incident_id", "incident_uuid" ]
+            example: "incident_uuid"
+            description: "Одно из полей уведомления, по которому будет проводиться фильтрация"
+         
+          operator:
+            type: string
+            enum: ['eq', 'ge', 'gt', 'gte', 'le', 'lt', 'lte', 'ne', '=', 'in', 'not in', '>', '<', '>=', '<=', '!=', 'between', 'not between']
+            description: > 
+              "Оператор, используемый при фильтрации"
+               * `=`,  `eq` - Равно. Пример: *[{"property":"login","operator":"eq","value":"ТИ НКЦКИ"}]*
+               * `!=`, `ne` - Не равно. Пример: *[{"property":"login","operator":"!=","value":"ТИ НКЦКИ"}]*
+               * `>`, `gt` - Больше. Применяется для полей типа дата. Пример: *[{"property":"create_time","operator":">","value":"2024-10-29"}]*
+               * `<`, `lt` - Меньше. Применяется для полей типа дата. Пример: *[{"property":"create_time","operator":"lt","value":"2024-10-29"}]*
+               * `>=`, `ge`, `gte` - Больше или равно. Применяется для полей типа дата. Пример: *[{"property":"create_time","operator":"ge","value":"2024-10-29"}]*
+               * `<=`, `le`, `lte` - Меньше или равно. Применяется для полей типа дата. Пример: *[{"property":"create_time","operator":"<=","value":"2024-10-29"}]*
+               * `in` - Поиск по вхождению значений. Пример: *[{"property":"login","operator":"in","value":["ТИ НКЦКИ", "RMSH"]}]*
+               * `not in` -  Исключение списка вариантов. Пример: *[{"property":"login","operator":"in","value":["ТИ НКЦКИ", "RMSH"]}]*
+               * `between` - Поиск по вхождению в диапазон дат по двум значениям. Пример: *[{"property":"create_time",  "operator": "between" , "value":  ["2024-10-27", "2024-10-29"]}]*
+               * `not between` - Поиск по отсутствию вхождения в диапазон дат по двум значениям. Пример: *[{"property":"create_time",  "operator": "between" , "value":  ["2024-10-27", "2024-10-29"]}]*
+
+          value:
+            type: string
+            example: "12967d4c-4f3d-4956-9f1b-e672849959c3"
+            description: "Значение параметра, которое будет сравниваться со значениями выбранного поля в property"
+      example: '{"property":"incident_uuid","operator":"eq","value":"01d238ec-0a4e-4cd4-9647-ac535bc50c14"}'
+    
+    CommentSorting:
+      title: Комментарии. Sort
+      example: '{"property":"create_time", "direction":"ASC"}'
+      description: "Описание формирования параметра для сортировки выводимых данных в ответе на запрос по комментариям"
+      type: object
+      properties:
+        property:
+          type: string
+          enum: ["id", "login", "incident_id", "create_time"]
+          example: "create_time"
+          description: "Наименование поля, по которому будет проводиться сортировка"
+        direction:
+          type: string
+          enum: ['ASC','DESC'] 
+          description: "Направление сортировки"
+      required:
+          - property
+          - direction
+
+    Limit:
+      title: Количество выводимых объектов в ответе. Limit
+      type: integer
+      example: 10
+      description: "Количество выводимых элементов в ответе на запрос. Если не указывать значение limit (значение должно быть <= 1000), то по умолчанию будут выводиться первые 1000 элементов"
+
+    Offset:
+      title: Количество выводимых объектов в ответе. Offset
+      type: integer
+      example: 100
+      description: "Порядковый номер элемента, с которого будет начинаться вывод в ответе на запрос. Если не указывать значение offset, то по умолчанию уведомления будут выводиться с 0 элемента"

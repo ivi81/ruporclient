@@ -1,0 +1,1387 @@
+openapi: 3.0.0
+info:
+  title: Личный кабинет ГосСОПКА
+  description: >-
+    Описание публичного API Личного кабинета ГосСОПКА. Работа с сообщениями от НКЦКИ.
+  version: 1.1.1
+servers:
+  - url: https://lk.cert.gov.ru/api/v2
+    description: "Личный кабинет"
+  - url: https://test-lk.cert.gov.ru/api/v2
+    description: "Тестовый Личный кабинет"
+  
+paths:
+  /incidents:
+    get:
+      tags:
+        - "Сообщения"
+      summary: Получение данных по сообщениям от НКЦКИ
+      description: >-
+        GET запрос для получения данных по карточке сообщения, которое было
+        заведено НКЦКИ в ЛК (в адрес субъекта ГосСОПКА)
+      parameters:
+        - in: query
+          name: filter
+          required: false
+          description: Фильтр по атрибутам сообщения от НКЦКИ
+          schema:
+            $ref: '#/components/schemas/MessageFilter'
+          examples: 
+            one: 
+              summary: Фильтрация сообщений по дате регистрации
+              value: '[{"property":"category","operator":"eq","value":"Сообщение от НКЦКИ"},{"property":"create_time","operator":">=","value":"2020-12-15T22:37:54"}]'
+            two:
+              summary: Фильтрация сообщений по дате последнего обновления
+              value: '[{"property":"category","operator":"eq","value":"Сообщение от НКЦКИ"},{"property":"updated","operator":">=","value":"2020-12-15T22:37:54"}]'
+            three: 
+              summary: Фильтрация сообщений по уникальному идентификатору
+              value: '[{"property":"category","operator":"eq","value":"Сообщение от НКЦКИ"},{"property":"uuid","operator":"eq","value":"e8eb9f71-67f9-491b-8f5a-b5414e781693"}]'
+
+        - in: query
+          name: fields
+          required: true
+          description: "Получение перечня полей сообщения в ответе"
+          schema:
+            $ref: '#/components/schemas/GetMessageFields'
+          examples:
+            one: 
+              summary: Получение регистрационного номера и даты регистрации сообщения
+              value: '["reg_number", "create_time"]'
+            two: 
+              summary: Получение текущего статуса сообщения
+              value: '["status"]'
+            three: 
+              summary: Получение даты последнего обновления сообщения
+              value: '["updated"]'
+            four: 
+              summary: Получение всего состава полей карточки сообщения
+              value: '["uuid", "company", "category", "type", "create_time", "detect_time", "end_time", "updated", "event_description", "inrelated_observables_domain", "inrelated_observables_uri", "inrelated_observables_ipv4", "inrelated_observables_ipv6", "inrelated_indicators_domain_malware", "inrelated_indicators_domain", "inrelated_indicators_ipv4", "inrelated_indicators_ipv6", "inrelated_indicators_ipv4_malware", "inrelated_indicators_ipv6_malware", "int_result", "owner_name", "reg_number", "status", "tlp", "malware_hash", "inrelated_indicators_email", "inrelated_indicators_uri", "related_observables_email", "related_observables_uri", "related_indicators_vuln", "related_indicators_asn", "related_indicators_as", "related_indicators_as_lir", "related_observables_service", "related_observables_as_path", "product_info", "vulnerability_id", "product_category"]'
+
+        - in: query
+          name: offset
+          example: 15
+          required: false
+          description: "Порядковый номер сообщения, с которого будет начинаться вывод сообщений в ответе на запрос. Если не указывать значение offset, то по умолчанию сообщения будут выводиться с 0 элемента"
+          schema:
+            type: integer
+
+        - in: query
+          name: limit
+          example: 50
+          required: false
+          description: "Количество выводимых сообщений в ответе на запрос. Если не указывать значение limit (значение должно быть <= 1000), то по умолчанию будет выводиться первые 1000 сообщений"
+          schema:
+            type: integer
+
+        - in: query
+          name: sort
+          description: "Сортировка выводимых данных"
+          examples:
+            one:
+              summary: Сортировка сообщений по дате создания
+              value: '[{"property":"create_time", "direction":"ASC"}]'
+          required: false
+          schema:
+            $ref: '#/components/schemas/Sorting'
+
+
+      responses:
+        '200':
+          description: 'OK — успешный запрос. Если клиентом были запрошены какие-либо данные, то они находятся в теле сообщения'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageFields'
+              examples:
+                one:
+                  summary: Получение регистрационного номера и даты регистрации сообщения
+                  value:
+                    "success": true
+                    "data": {
+                      "next": false,
+                      "result": [
+                        {
+                          "reg_number": "RMSH-20-09-256",
+                          "create_time": "2020-09-15T09:21:31.248Z"
+                        }
+                      ]
+                    }
+                two:
+                  summary: Получение текущего статуса сообщения
+                  value:
+                    "success": true
+                    "data": {
+                          "next": false,
+                           "result": [
+                             {
+                               "status": {
+                                 "id": 18,
+                                 "name": "Новое"
+                               }
+                             }
+                           ]
+                          }
+                three:
+                  summary: Получение даты последнего обновлениях полей карточки сообщения
+                  value:
+                    "success": true
+                    "data": {
+                      "next": false,
+                      "result": [
+                        {
+                          "updated": "2020-09-15T09:21:31.248Z"
+                        }
+                      ]
+                    }
+
+                four:
+                  summary: Получение всего состава полей карточки сообщения
+                  value: {
+                          "success": true,
+                          "data": {
+                              "next": false,
+                              "result": [
+                                  {
+                                      "category": {
+                                          "id": 27,
+                                          "name": "Сообщение от НКЦКИ"
+                                      },
+                                      "company": {
+                                          "id": 180,
+                                          "name": "АО \"Ромашка\"",
+                                          "uuid": "4f00b46c-4533-47b2-93f3-3bf000563623"
+                                      },
+                                      "create_time": "2020-12-16T23:54:48+03:00",
+                                      "detect_time": "2020-12-14T21:00:00Z",
+                                      "end_time": "2020-12-15T21:00:00Z",
+                                      "event_description": "тестовый инцидент",
+                                      "files": [],
+                                      "identifier": "21-07-60",
+                                      "inrelated_indicators_domain": [
+                                          {
+                                              "value": "badboy.net",
+                                              "reg_domain": ""
+                                          }
+                                      ],
+                                      "inrelated_indicators_ipv4": [
+                                          {
+                                              "value": "8300:b3f8:982f:5fd2:383e:28b3:d08c:6c81",
+                                              "country": "",
+                                              "lir": "",
+                                              "as_name": "",
+                                              "asn": ""
+                                          }
+                                      ],
+                                      "inrelated_indicators_ipv6": [
+                                          {
+                                              "value": "3f34:6609:ee25:6303:ffcb:ee81:f9d4:f64a",
+                                              "country": "",
+                                              "lir": "",
+                                              "as_name": "",
+                                              "asn": ""
+                                          }
+                                      ],
+                                      "inrelated_observables_domain": [
+                                          {
+                                              "value": "rmsh.ru",
+                                              "reg_domain": ""
+                                          }
+                                      ],
+                                      "inrelated_observables_ipv4": [
+                                          {
+                                              "value": "194.12.12.12",
+                                              "country": "Россия",
+                                              "lir": "",
+                                              "as_name": "",
+                                              "asn": ""
+                                          }
+                                      ],
+                                      "inrelated_observables_ipv6": [
+                                          {
+                                              "value": "3f34:6609:ee25:6303:ffcb:ee81:f9d4:f64a",
+                                              "country": "",
+                                              "lir": "",
+                                              "as_name": "",
+                                              "asn": ""
+                                          }
+                                      ],
+                                      "int_result": null,
+                                      "malware_hash": [
+                                          {
+                                              "value": "b482fafd58ec39fdbc1ae74470893eee"
+
+                                          }
+                                      ],
+                                      "owner_name": "АО \"Ромашка\"",
+                                      "reg_number": "ALRT-20-12-2937",
+                                      "inrelated_indicators_email": [],
+                                      "related_observables_email": [],
+                                      "rv_incident_id_prefix": null,
+                                      "status": {
+                                          "id": 18,
+                                          "name": "Новое"
+                                      },
+                                      "tlp": {
+                                          "id": 565,
+                                          "name": "TLP:WHITE"
+                                      },
+                                      "type": {
+                                          "id": 114,
+                                          "name": "Источник email-рассылки модулей ВПО"
+                                      },
+                                      "type_group": 21,
+                                      "updated": "2020-12-16T20:55:25.573Z",
+                                      "uuid": "8475f278-44a9-4a34-8809-7560277f2d19",
+                                      "rel": {}
+                                  }
+                              ]
+                          }
+                      }
+
+        '400':
+          description: 'Bad Request — сервер обнаружил в запросе клиента ошибочные данные.'
+          content:
+            application/json:
+                example:
+                  "success": false
+                  "message": "[400 Bad Request] Передан неверный токен"
+                  "error": "Передан неверный токен"
+                  "statusCode": 400
+
+        '404':
+          description: 'Not Found — запрашиваемый URL не существует. Сервер "понял" запрос, но не нашёл соответствующего ресурса по указанному URL. Ответ 404 может использоваться вместо 403, если требуется скрыть определённые ресурсы.'
+        '500':
+          description: 'Internal Server Error — любая внутренняя ошибка сервера.'
+
+    post:
+      summary: Передача данных в сообщение от НКЦКИ
+      description: >-
+        Этот POST запрос используется для изменения статусов у сообщения и передачи значения в поле "Результат принятого решения"
+      tags:
+        - "Сообщения"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+              - $ref: '#/components/schemas/InProcess'
+              - $ref: '#/components/schemas/TheResult'
+            examples:
+              one:
+                summary: 'Передача статуса "В работе"'
+                description: >-
+                  Данный запрос производится в случае необходимости смены статуса у сообщения от НКЦКИ, зарегистрированного в ЛК. Смена
+                  статуса производится согласно схеме, представленной в Инструкции пользователя Личного кабинета ГосСОПКА
+                value: {
+                        "uuid": "745c04ed-3c9b-4cf8-848e-d33b13c22152",
+                        "company": "АО \"Ромашка\"",
+                        "status": "В работе"
+                  }
+              two:
+                summary: 'Передача статуса "Принято решение"'
+                description: >-
+                  Данный запрос производится при завершении работ над сообщением от НКЦКИ. При переводе сообщения в статус Принято
+                  решение, также обязательно в запросе передается значение поля Результат принятого решения
+                value: {
+                        "uuid": "745c04ed-3c9b-4cf8-848e-d33b13c22152",
+                        "company": "АО \"Ромашка\"",
+                        "status": "Принято решение",
+                        "int_result": "Меры приняты"
+                  }
+
+
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AddFiles'
+
+      responses:
+        '200':
+          description: 'OK — успешный запрос на изменение данных по сообщению в ЛК ГосСОПКА.'
+          content:
+            application/json:
+                example:
+                  "success": true
+                  "data": [
+                    {
+                      "identifier": "INC-21-07-60",
+                      "uuid": "a5b8331b-7bc2-4cb3-90c4-57b09484218c",
+                      "update_time": "2021-07-23T00:13:08.781Z"
+                    }
+                  ]
+
+
+        '400':
+          description: 'Bad Request — сервер обнаружил в запросе клиента ошибочные данные.'
+          content:
+            application/json:
+                example:
+                    "success": false
+                    "message": "[400 Bad Request] Передан неверный токен"
+                    "error": "Передан неверный токен"
+                    "statusCode": 400
+
+        '404':
+          description: 'Not Found — запрашиваемый URL не существует. Сервер "понял" запрос, но не нашёл соответствующего ресурса по указанному URL. Ответ 404 может использоваться вместо 403, если требуется скрыть определённые ресурсы.'
+        '500':
+          description: 'Internal Server Error — любая внутренняя ошибка сервера.'
+
+
+  /incidents/{incident.uuid}/files:
+    get:
+      tags:
+        - "Метаданные по файлам"
+      summary: Получение метаданных по файлам, прикрепленным к конкретной карточке сообщения. В ответе на данный запрос будет идентификатор файла (ID), который необходим для составления запроса на скачивание файла
+      description: >-
+        GET запрос для получения метаданных по файлам, прикрепленных к конкретной карточке сообщения
+      parameters:
+        - in: path
+          name: incident.uuid
+          example: 783c9f36-a5b1-4600-abe1-8b75d58eb649
+          required: true
+          description: "Уникальный идентификатор сообщения"
+          schema:
+            type: integer
+
+      responses:
+        '200':
+          description: 'OK — успешный запрос. Если клиентом были запрошены какие-либо данные, то они находятся в теле сообщения'
+          content:
+            application/json:
+              example:
+                  "success": true,
+                  "data": [
+                      {
+                          "id": 4122,
+                          "name": "test_file",
+                          "filename": "ioc_info.xlsx",
+                          "description": "",
+                          "size": 9943,
+                          "type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                          "md5": "f25ace09a6df516e66424d4e88c1bb8b",
+                          "sha1": "82396f50ee30c0fe8546389769ab86ce90e429dc",
+                          "source": "",
+                          "add_date": "2021-07-23T00:38:43.272Z"
+                      }
+                  ]
+
+        '400':
+          description: 'Bad Request — сервер обнаружил в запросе клиента ошибочные данные.'
+          content:
+            application/json:
+                example:
+                  "success": false
+                  "message": "[400 Bad Request] Передан неверный токен"
+                  "error": "Передан неверный токен"
+                  "statusCode": 400
+
+        '404':
+          description: 'Not Found — запрашиваемый URL не существует. Сервер "понял" запрос, но не нашёл соответствующего ресурса по указанному URL. Ответ 404 может использоваться вместо 403, если требуется скрыть определённые ресурсы.'
+        '500':
+          description: 'Internal Server Error — любая внутренняя ошибка сервера.'
+
+  /incidents/files/{file.id}/download:
+    get:
+      tags:
+        - "Скачивание файла"
+      summary: Скачивание файла, прикрепленного к карточке сообщения
+      description: >-
+        GET запрос для получения файла, прикрепленного к карточке сообщения
+      parameters:
+        - in: path
+          name: file.id
+          example: 21281
+          required: true
+          description: "Идентификатор файла"
+          schema:
+            type: integer
+
+      responses:
+        '200':
+          description: 'OK — успешный запрос. В ответ будет получен файл'
+
+        '400':
+          description: 'Bad Request — сервер обнаружил в запросе клиента ошибочные данные.'
+          content:
+            application/json:
+                example:
+                  "success": false
+                  "message": "[400 Bad Request] Передан неверный токен"
+                  "error": "Передан неверный токен"
+                  "statusCode": 400
+
+        '404':
+          description: 'Not Found — запрашиваемый URL не существует. Сервер "понял" запрос, но не нашёл соответствующего ресурса по указанному URL. Ответ 404 может использоваться вместо 403, если требуется скрыть определённые ресурсы.'
+        '500':
+          description: 'Internal Server Error — любая внутренняя ошибка сервера.'
+
+  /comments:
+    post:
+      summary: Создание нового комментария в сообщении от НКЦКИ
+      description: >-
+        Запрос создает новый комментарий в карточке (во кладке "Комментарии") сообщения от НКЦКИ. Авторство комментария определяется на
+        основании API токена, который был использован при формировании комментария. В ключе "incident.uuid" прописывается UUID сообщения
+        от НКЦКИ, в котором необходимо написать комментарий.
+      tags:
+        - "Комментарии"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/Comments'
+              required:
+                - incident.uuid
+                - data
+
+      responses:
+        '200':
+          description: 'OK — успешный запрос. Если клиентом были запрошены какие-либо данные, то они находятся в теле сообщения'
+          content:
+            application/json:
+                example:
+                  "data": {
+                    "id": 301,
+                    "incident_id": 546,
+                    "comment": "hello",
+                    "user_id": 5,
+                    "d_comment": "2020-08-19T00:00:00.000Z",
+                    "t_comment": "01:06:00",
+                    "createdAt": "2020-08-19T01:07:07.661Z",
+                    "updatedAt": "2020-08-19T01:07:07.661Z",
+                    "to": "",
+                    "parent_id": null,
+                    "workgroup_resolved": false,
+                    "options": {}
+                  }
+                  "success": true
+        '400':
+          description: 'Bad Request — сервер обнаружил в запросе клиента ошибочные данные.'
+          content:
+
+            application/json:
+                example:
+                  "success": false
+                  "message": "[400 Bad Request] Передан неверный токен"
+                  "error": "Передан неверный токен"
+                  "statusCode": 400
+        '404':
+          description: 'Not Found — запрашиваемый URL не существует. Сервер "понял" запрос, но не нашёл соответствующего ресурса по указанному URL. Ответ 404 может использоваться вместо 403, если требуется скрыть определённые ресурсы.'
+        '500':
+          description: 'Internal Server Error — любая внутренняя ошибка сервера.'
+
+  /incidents/comments:
+    get:
+      tags:
+        - "Комментарии"
+      summary: Получение комментариев по уведомлениям/сообщениям
+      parameters:
+        - in: query
+          name: filter
+          required: false
+          description: "Фильтрация по атрибутам комментариев"
+          schema:
+            $ref: '#/components/schemas/CommentFilter'
+          examples:
+            one:
+              summary: "Фильтр по дате создания комментария"
+              value: '[{"property":"create_time","operator":"gt","value":"2020-08-14T00:00:00Z"}]'
+            two:
+              summary: "Фильтр по автору комментария"
+              value: '[{"property":"login","operator":"eq","value":"Оператор НКЦКИ"}]'
+
+        - in: query
+          name: offset
+          example: 15
+          required: false
+          description: "Порядковый номер комментария, с которого будет начинаться вывод комментариев в ответе на запрос. Если не указывать значение offset, то по умолчанию комментарии будут выводиться с 0 элемента"
+          schema:
+            type: integer
+
+        - in: query
+          name: limit
+          example: 50
+          required: false
+          description: "Количество выводимых комментариев в ответе на запрос. Если не указывать значение limit (значение должно быть <= 1000), то по умолчанию будет выводиться первые 1000 комментариев"
+          schema:
+            type: integer
+
+
+        - in: query
+          name: sort
+          description: "Сортировка выводимых данных"
+          examples:
+            one:
+              summary: Сортировка комментариев по дате создания
+              value: '[{"property":"create_time", "direction":"ASC"}]'
+          required: false
+          schema:
+            $ref: '#/components/schemas/Sorting'
+
+
+      responses:
+        '200':
+          description: 'OK — успешный запрос. Если клиентом были запрошены какие-либо данные, то они находятся в теле сообщения'
+          content:
+            application/json:
+              examples:
+                answer:
+                  summary: 'Получение комментариев по сообщениям'
+                  value: {
+                        "data": [
+                          {
+                            "id": 1721,
+                            "incident.uuid": "783c9f36-a5b1-4600-abe1-8b75d58eb649",
+                            "text": "Добрый день.",
+                            "login": "Оператор НКЦКИ",
+                            "incident.id": "INC-20-09-368",
+                            "create_time": "2020-09-30T08:15:06.864Z"
+                          },
+                          {
+                            "id": 1720,
+                            "incident.uuid": "783c9f36-a5b1-4600-abe1-8b75d58eb649",
+                            "text": "Просим сообщить через блок «Комментарии» перечень вопросов, по которым запрошено содействие НКЦКИ",
+                            "login": "ТИ НКЦКИ",
+                            "incident.id": "INC-20-09-368",
+                            "create_time": "2020-09-30T08:00:02.543Z"
+                          }],
+                        "success": true
+                        }
+        '400':
+          description: 'Bad Request — сервер обнаружил в запросе клиента ошибочные данные.'
+        '404':
+          description: 'Not Found — запрашиваемый URL не существует. Сервер "понял" запрос, но не нашёл соответствующего ресурса по указанному URL. Ответ 404 может использоваться вместо 403, если требуется скрыть определённые ресурсы.'
+        '500':
+          description: 'Internal Server Error — любая внутренняя ошибка сервера.'
+
+  /incidents/{uuid}/comments:
+    get:
+      summary: Получение комментариев по конкретному сообщению
+      description: >-
+        Запрос осуществляется для получения комментариев по одному сообщению. Запрос можно уточнить, применив фильтр по дате создания
+        комментария и/или по автору комментария
+      tags:
+        - "Комментарии"
+      parameters:
+        - in: path
+          name: uuid
+          example: "24ab0c28-e1f4-4452-89d3-47d54c1e4b21"
+          required: true
+          description: "Уникальный идентификатор сообщения"
+          schema:
+            type: string
+
+        - in: query
+          name: filter
+          required: false
+          schema:
+            $ref: '#/components/schemas/CommentFilter'
+          examples:
+            one:
+              summary: Фильтр по дате создания комментария
+              value: '[{"property":"create_time","operator":"gt","value":"2020-08-14T00:00:00Z"}]'
+            two:
+              summary: Фильтр по автору комментария
+              value: '[{"property":"login","operator":"eq","value":"ТИ НКЦКИ"}]'
+            three:
+              summary: Фильтр по дате создания комментария и по автору комментария
+              value: '[{"property":"create_time","operator":"gt","value":"2020-12-01T00:00:00Z"}, {"property":"login","operator":"eq","value":"Оператор НКЦКИ"}]'
+
+      responses:
+        '200':
+          description: 'OK — успешный запрос. Если клиентом были запрошены какие-либо данные, то они находятся в теле сообщения'
+          content:
+            application/json:
+                example:
+                  "data": [
+                    {
+                      "id": 1478,
+                      "incident.uuid": "24ab0c28-e1f4-4452-89d3-47d54c1e4b21",
+                      "text": "Просим сообщить через блок «Комментарии» перечень вопросов, по которым запрошено содействие НКЦКИ. Статус реагирования: Проводятся мероприятия по реагированию на инцидент",
+                      "login": "ТИ НКЦКИ",
+                      "incident.id": "INC-20-09-158",
+                      "create_time": "2020-09-15T09:21:49.186Z"
+                    },
+                    {
+                      "id": 1477,
+                      "incident.uuid": "24ab0c28-e1f4-4452-89d3-47d54c1e4b21",
+                      "text": "Внесите в сообщение (группа полей «технические сведения об атакуемом/атакующем объектах») RMSH-20-09-269 технические сведения о событии информационной безопасности и поменяйте статус данного сообщения с «Внесение доп.сведений» на «Передано в НКЦКИ». После этого отслеживайте состояние и ход информационного взаимодействия по уведомлению RMSH-20-09-269 в блоке «Комментарии».",
+                      "login": "ТИ НКЦКИ",
+                      "incident.id": "INC-20-09-158",
+                      "create_time": "2020-09-15T09:21:48.892Z"
+                    }
+                  ]
+                  "success": true
+
+        '400':
+          description: 'Bad Request — сервер обнаружил в запросе клиента ошибочные данные.'
+          content:
+
+            application/json:
+                example:
+                  "success": false
+                  "message": "[400 Bad Request] Передан неверный токен"
+                  "error": "Передан неверный токен"
+                  "statusCode": 400
+        '404':
+          description: 'Not Found — запрашиваемый URL не существует. Сервер "понял" запрос, но не нашёл соответствующего ресурса по указанному URL. Ответ 404 может использоваться вместо 403, если требуется скрыть определённые ресурсы.'
+        '500':
+          description: 'Internal Server Error — любая внутренняя ошибка сервера.'
+
+security:
+  - ApiKeyAuth: []
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: "x-token"
+
+  schemas:
+
+    MessagesMianFilter:
+      example: 'filter=[{"property":"uuid","operator":"eq","value":"01d238ec-0a4e-4cd4-9647-ac535bc50c14"}]&fields=["uuid", "company", "create_time", "detect_time", "end_time", "updated"]&sort=[{"property":"create_time", "direction":"ASC"}]&limit=10&offset=0'
+      title: Сообщения. Описание параметров
+      type: object
+      properties:
+        filter:
+          $ref: '#/components/schemas/MessageFilter'
+        sort:
+          $ref: '#/components/schemas/Sorting'
+        fields:
+          $ref: '#/components/schemas/GetMessageFields'
+        limit:
+          $ref: '#/components/schemas/Limit'
+        offset:
+          $ref: '#/components/schemas/Offset'
+
+
+    MessageFields:
+      title: Состав полей карточки сообщения от НКЦКИ
+      description: >-
+        В этом блоке описан состав полей, который находится в ответе на получение карточки сообщения. Блок полей "технические сведения" уникален для каждого типа события ИБ (тут представлен блок со всеми полями для всех типов события ИБ категории "Сообщение от НКЦКИ")
+      type: object
+      properties:
+        uuid:
+          type: string
+          example: "4f00b46c-4543-47b2-93f3-3bf029563623"
+          description: "Уникальный идентификатор сообщения от НКЦКИ в ЛК"
+          maxLength: 5000
+        company:
+          description: "Краткое наименование организации субъекта ГосСОПКА"
+          type: string
+          example:  "АО \"Ромашка\""
+          maxLength: 5000
+        category:
+          type: string
+          example: "Сообщение от НКЦКИ"
+          description: "Категория. Категория карточки сообщения. Значение из справочника"
+          enum: [ "Сообщение от НКЦКИ" ]
+        type:
+          type: string
+          example: "Зараженный ресурс"
+          description: "Тип события ИБ. Значение из справочника"
+          enum: [ "Зараженный ресурс", "Источник email-рассылки модулей ВПО", "Источник распространения модулей ВПО", "Центр управления ВПО", "Элемент инфраструктуры ВПО", "Замедление работы ресурса", "Источник эксплуатации уязвимости", "Источник компрометации учетной записи", "Участник захвата сетевого трафика", "Источник несанкционированного доступа", "Источник несанкционированного изменения информации", "Источник рассылки спам-сообщений", "Публикация запрещенной законодательством РФ информации", "Размещение фишингового ресурса", "Наличие несанкционированного контента", "Участник DDoS-атаки", "Скомпрометированная учетная запись", "Источник сетевого сканирования", "Участник мошеннической деятельности", "Источник угрозы социальной инженерии", "Уязвимый ресурс", "Подозрение на фишинговый ресурс", "Угроза компрометации ПДн", "Угроза компьютерной атаки" ]
+        create_time:
+          type: string
+          format: date-time
+          example: "2020-11-17T17:22:52Z"
+          description: "Дата и время регистрации. Дата и время регистрации сообщения от НКЦКИ. Заполняется по правилам стандарта ISO 8601. Используется timeZone UTC"
+        detect_time:
+          type: string
+          format: date-time
+          example: "2020-10-22T14:41:42Z"
+          description: "Дата и время выявления. Дата и время выявления инцидента. Заполняется по правилам стандарта ISO 8601. Используется timeZone UTC"
+        end_time:
+          type: string
+          format: date-time
+          example: "2020-10-22T18:00:21Z"
+          description: "Дата и время завершения. Дата и время завершения инцидента. Заполняется по правилам стандарта ISO 8601. Используется timeZone UTC"
+        updated:
+          type: string
+          format: date-time
+          example: "2020-10-22T14:41:42Z"
+          description: "Дата и время последнего обновления карточки сообщения. Заполняется по правилам стандарта ISO 8601. Используется timeZone UTC"
+        event_description:
+          type: string
+          maxLength: 5000
+          example:  "тестовое сообщение"
+          description: "Краткое описание события ИБ"
+        int_result:
+          type: string
+          example:  "TLP:GREEN"
+          description: "Результат принятого решения. Значение из справочника"
+          enum: [ "Меры приняты", "Информация учтена", "Сведения не подтверждены" ]
+        owner_name:
+          type: string
+          maxLength: 5000
+          example: "АО \"Ромашка\""
+          description: "Владелец информационного ресурса"
+        reg_number:
+          type: string
+          maxLength: 5000
+          example: "ALRT-20-12-2914"
+          description: "Рег. номер сообщения"
+        status:
+          type: string
+          example:  "В работе"
+          description: "Статус. Статус обработки сообщения от НКЦКИ. Значение из справочника"
+          enum: [ "Новое", "В работе", "Принято решение", "Взаимодействие завершено", "Отправлено в архив" ]
+        tlp:
+          type: string
+          example:  "TLP:GREEN"
+          description: "Ограничительный маркер TLP. Значение из справочника"
+          enum: [ "TLP:WHITE", "TLP:GREEN", "TLP:AMBER", "TLP:RED" ]
+    #-------- блок полей "технические сведения" -----------
+        inrelated_observables_domain:
+          type: object
+          maxLength: 5000
+          description: "Доменное имя. Объект возвращается следующими типами событий ИБ: 'Замедление работы ресурса', 'Зараженный ресурс', 'Источник email-рассылки модулей ВПО', 'Источник компрометации учетной записи', 'Источник несанкционированного доступа', 'Источник несанкционированного изменения информации', 'Источник распространения модулей ВПО', 'Источник рассылки спам-сообщений', 'Источник сетевого сканирования', 'Источник угрозы социальной инженерии', 'Источник эксплуатации уязвимости', 'Наличие несанкционированного контента', 'Публикация запрещенной законодательством РФ информации', 'Размещение фишингового ресурса', 'Скомпрометированная учетная запись', 'Участник DDoS-атаки', 'Участник мошеннической деятельности', 'Уязвимый ресурс', 'Центр управления ВПО', 'Элемент инфраструктуры ВПО','Подозрение на фишинговый ресурс', 'Угроза компрометации ПДн', 'Угроза компьютерной атаки'. Количество передаваемых символов не должно превышать 5000."
+          properties:
+            value:
+              type: string
+              example: "example.com"
+              description: "Значение"
+            reg_domain:
+              type: string
+              example: "Orange"
+              description: "Регистратор домена"
+        inrelated_observables_ipv4:
+          type: object
+          maxLength: 5000
+          description: "IPv4-адрес. Объект возвращается со следующими типами событий ИБ: 'Замедление работы ресурса', 'Зараженный ресурс', 'Источник email-рассылки модулей ВПО', 'Источник компрометации учетной записи', 'Источник несанкционированного доступа', 'Источник несанкционированного изменения информации', 'Источник распространения модулей ВПО', 'Источник рассылки спам-сообщений', 'Источник сетевого сканирования', 'Источник угрозы социальной инженерии', 'Источник эксплуатации уязвимости', 'Наличие несанкционированного контента', 'Публикация запрещенной законодательством РФ информации', 'Размещение фишингового ресурса', 'Скомпрометированная учетная запись', 'Участник DDoS-атаки', 'Участник мошеннической деятельности', 'Уязвимый ресурс', 'Центр управления ВПО', 'Элемент инфраструктуры ВПО','Подозрение на фишинговый ресурс', 'Угроза компрометации ПДн', 'Угроза компьютерной атаки'. Количество передаваемых символов не должно превышать 5000."
+          properties:
+            value:
+              type: string
+              format: ipv4
+              example: "163.172.160.182"
+              description: "Значение"
+            country:
+              type: string
+              example: "Франция"
+              description: "Страна"
+            lir:
+              type: string
+              example: "BBQ"
+              description: "Наименование LIR"
+            as_name:
+              type: string
+              example: "RedS"
+              description: "Наименование AS"
+            asn:
+              type: string
+              example: "AS-5513"
+              description: "Номер ASN"
+        inrelated_observables_ipv6:
+          type: object
+          maxLength: 5000
+          description: "IPv6-адрес. Объект возвращается со следующими типами событий ИБ: 'Замедление работы ресурса', 'Зараженный ресурс', 'Источник email-рассылки модулей ВПО', 'Источник компрометации учетной записи', 'Источник несанкционированного доступа', 'Источник несанкционированного изменения информации', 'Источник распространения модулей ВПО', 'Источник рассылки спам-сообщений', 'Источник сетевого сканирования', 'Источник угрозы социальной инженерии', 'Источник эксплуатации уязвимости', 'Наличие несанкционированного контента', 'Публикация запрещенной законодательством РФ информации', 'Размещение фишингового ресурса', 'Скомпрометированная учетная запись', 'Участник DDoS-атаки', 'Участник мошеннической деятельности', 'Уязвимый ресурс', 'Центр управления ВПО', 'Элемент инфраструктуры ВПО', 'Подозрение на фишинговый ресурс', 'Угроза компрометации ПДн', 'Угроза компьютерной атаки'. Количество передаваемых символов не должно превышать 5000."
+          properties:
+            value:
+              type: string
+              format: ipv6
+              example: "001b:5f3e:0eae:c39a:5916:f773:0666:1e1c"
+              description: "Значение"
+            country:
+              type: string
+              example: "Франция"
+              description: "Страна"
+            lir:
+              type: string
+              example: "BBQ"
+              description: "Наименование LIR"
+            as_name:
+              type: string
+              example: "RedS"
+              description: "Наименование AS"
+            asn:
+              type: string
+              example: "AS-5513"
+              description: "Номер ASN"
+        inrelated_indicators_domain_malware:
+          type: object
+          maxLength: 5000
+          description: "Доменное имя вредоносной системы. Объект возвращается со следующими типами событий ИБ: 'Зараженный ресурс'. Количество передаваемых символов не должно превышать 5000."
+          properties:
+            value:
+              type: string
+              example: "example2.com"
+              description: "Значение"
+            function:
+              type: string
+              example: "Элемент инфраструктуры ВПО"
+              description: "Тип активности"
+              enum: [ "Центр управления ВПО", "Элемент инфраструктуры ВПО", "Источник распространения ВПО", "Тип не определен" ]
+            reg_domain:
+              type: string
+              example: "BBQ"
+              description: "Регистратор домена"
+            sinkhole:
+              type: boolean
+              example: true
+              description: "Sinkhole-объект"
+        inrelated_indicators_domain:
+          type: object
+          maxLength: 5000
+          description: "Доменное имя вредоносной системы. Объект возвращается со следующими типами событий ИБ: 'Замедление работы ресурса', 'Источник email-рассылки модулей ВПО', 'Источник несанкционированного изменения информации', 'Источник распространения модулей ВПО', 'Источник рассылки спам-сообщений', 'Источник сетевого сканирования', 'Источник угрозы социальной инженерии', 'Источник эксплуатации уязвимости', 'Наличие несанкционированного контента', 'Публикация запрещенной законодательством РФ информации', 'Размещение фишингового ресурса', 'Скомпрометированная учетная запись', 'Участник мошеннической деятельности', 'Уязвимый ресурс', 'Центр управления ВПО', 'Элемент инфраструктуры ВПО', 'Подозрение на фишинговый ресурс', 'Угроза компрометации ПДн', 'Угроза компьютерной атаки'. Количество передаваемых символов не должно превышать 5000."
+          properties:
+            value:
+              type: string
+              example: "example3.com"
+              description: "Доменное имя"
+            reg_domain:
+              type: string
+              example: "BBQ"
+              description: "Регистратор домена"
+        inrelated_indicators_ipv4:
+          type: object
+          maxLength: 5000
+          description: "IPv4-адрес вредоносной системы. Объект возвращается со следующими типами событий ИБ: 'Источник email-рассылки модулей ВПО', 'Источник распространения модулей ВПО',  'Центр управления ВПО', 'Элемент инфраструктуры ВПО', 'Замедление работы ресурса', 'Источник эксплуатации уязвимости', 'Источник компрометации учетной записи', 'Источник несанкционированного доступа', 'Источник несанкционированного изменения информации', 'Источник рассылки спам-сообщений', 'Публикация запрещенной законодательством РФ информации', 'Размещение фишингового ресурса', 'Наличие несанкционированного контента', 'Участник DDoS-атаки', 'Скомпрометированная учетная запись', 'Источник сетевого сканирования', 'Участник мошеннической деятельности', 'Источник угрозы социальной инженерии', 'Уязвимый ресурс', 'Подозрение на фишинговый ресурс', 'Угроза компрометации ПДн', 'Угроза компьютерной атаки'. Количество передаваемых символов не должно превышать 5000."
+          properties:
+            value:
+              type: string
+              format: ipv4
+              example: "163.172.160.182"
+              description: "Значение"
+            country:
+              type: string
+              example: "Франция"
+              description: "Страна"
+            lir:
+              type: string
+              example: "BBQ"
+              description: "Наименование LIR"
+            as_name:
+              type: string
+              example: "RedS"
+              description: "Наименование AS"
+            asn:
+              type: string
+              example: "AS-5513"
+              description: "Номер ASN"
+        inrelated_indicators_ipv6:
+          type: object
+          maxLength: 5000
+          description: "IPv6-адрес вредоносной системы. Объект возвращается со следующими типами событий ИБ: 'Источник email-рассылки модулей ВПО', 'Источник распространения модулей ВПО',  'Центр управления ВПО', 'Элемент инфраструктуры ВПО', 'Замедление работы ресурса', 'Источник эксплуатации уязвимости', 'Источник компрометации учетной записи', 'Источник несанкционированного доступа', 'Источник несанкционированного изменения информации', 'Источник рассылки спам-сообщений', 'Публикация запрещенной законодательством РФ информации', 'Размещение фишингового ресурса', 'Наличие несанкционированного контента', 'Участник DDoS-атаки', 'Скомпрометированная учетная запись', 'Источник сетевого сканирования', 'Участник мошеннической деятельности', 'Источник угрозы социальной инженерии', 'Уязвимый ресурс', 'Подозрение на фишинговый ресурс', 'Угроза компрометации ПДн', 'Угроза компьютерной атаки'. Количество передаваемых символов не должно превышать 5000."
+          properties:
+            value:
+              type: string
+              format: ipv6
+              example: "d5e3:59f0:6a3f:3b29:d5b5:cc66:14ae:334d"
+              description: "Значение"
+            country:
+              type: string
+              example: "Франция"
+              description: "Страна"
+            lir:
+              type: string
+              example: "BBQ"
+              description: "Наименование LIR"
+            as_name:
+              type: string
+              example: "RedS"
+              description: "Наименование AS"
+            asn:
+              type: string
+              example: "AS-11120"
+              description: "Номер ASN"
+        inrelated_indicators_ipv4_malware:
+          description: "IPv4-адрес вредоносной системы. Объект возвращается со следующими типами событий ИБ: 'Зараженный ресурс'. Количество передаваемых символов не должно превышать 5000."
+          type: object
+          maxLength: 5000
+          properties:
+            value:
+              type: string
+              format: ipv4
+              example: "185.29.68.79"
+              description: "Значение"
+            function:
+              type: string
+              example: "Элемент инфраструктуры ВПО"
+              description: "Тип активности. Значение из справочника"
+              enum: [ "Центр управления ВПО", "Элемент инфраструктуры ВПО", "Источник распространения ВПО", "Тип не определен" ]
+            country:
+              type: string
+              example: "Испания"
+              description: "Страна"
+            lir:
+              type: string
+              example: "BBQ"
+              description: "Наименование LIR"
+            as_name:
+              type: string
+              example: "RedS"
+              description: "Наименование AS"
+            asn:
+              type: string
+              example: "AS-5513"
+              description: "Номер ASN"
+            sinkhole:
+              type: boolean
+              example: true
+              description: "Sinkhole-объект"
+        inrelated_indicators_ipv6_malware:
+          type: object
+          maxLength: 5000
+          description: "IPv6-адрес вредоносной системы. Объект возвращается со следующими типами событий ИБ: 'Зараженный ресурс'. Количество передаваемых символов не должно превышать 5000."
+          properties:
+            value:
+              type: string
+              format: ipv6
+              example: "d5e3:59f0:6a3f:3b29:d5b5:cc66:14ae:334d"
+              description: "Значение"
+            function:
+              type: string
+              example: "Элемент инфраструктуры ВПО"
+              description: "Тип активности. Значение из справочника"
+              enum: [ "Центр управления ВПО", "Элемент инфраструктуры ВПО", "Источник распространения ВПО", "Тип не определен" ]
+            country:
+              type: string
+              example: "Испания"
+              description: "Страна"
+            lir:
+              type: string
+              example: "BBQ"
+              description: "Наименование LIR"
+            as_name:
+              type: string
+              example: "RedS"
+              description: "Наименование AS"
+            asn:
+              type: string
+              example: "AS-5513"
+              description: "Номер ASN"
+            sinkhole:
+              type: boolean
+              example: true
+              description: "Sinkhole-объект"
+        inrelated_indicators_hash:
+          type: object
+          maxLength: 5000
+          description: "Хеш-сумма вредоносного модуля. Объект возвращается со следующими типами событий ИБ: 'Зараженный ресурс', 'Источник email-рассылки модулей ВПО', 'Источник распространения модулей ВПО', 'Центр управления ВПО', 'Элемент инфраструктуры ВПО'. Количество передаваемых символов не должно превышать 5000."
+          properties:
+            value:
+              type: string
+              example: "8be96739c72a5af5be8a7fe049a216f4"
+              description: "Значение"
+        inrelated_indicators_email:
+          type: object
+          maxLength: 5000
+          description: "Email-адрес вредоносного объекта. Объект возвращается со следующими типами событий ИБ: 'Зараженный ресурс', 'Источник email-рассылки модулей ВПО', 'Источник рассылки спам-сообщений', 'Участник мошеннической деятельности', 'Источник угрозы социальной инженерии'. Количество передаваемых символов не должно превышать 5000."
+          properties:
+            value:
+              type: string
+              example: "abc@example.com"
+              description: "Значение"
+        inrelated_indicators_uri:
+          type: object
+          maxLength: 5000
+          description: "URI-адрес вредоносной системы. Объект возвращается со следующими типами событий ИБ: 'Зараженный ресурс', 'Источник распространения модулей ВПО', 'Центр управления ВПО', 'Элемент инфраструктуры ВПО', 'Источник эксплуатации уязвимости', 'Источник компрометации учетной записи', 'Источник несанкционированного изменения информации', 'Публикация запрещенной законодательством РФ информации', 'Размещение фишингового ресурса', 'Наличие несанкционированного контента', 'Участник мошеннической деятельности', 'Источник угрозы социальной инженерии'. Количество передаваемых символов не должно превышать 5000."
+          properties:
+            value:
+              type: string
+              example: "https://badurl.com/index.php"
+              description: "Значение"
+        related_observables_email:
+          type: object
+          maxLength: 5000
+          description: "Email-адрес. Объект возвращается со следующими типами событий ИБ: 'Зараженный ресурс', 'Источник email-рассылки модулей ВПО', 'Источник компрометации учетной записи', 'Источник несанкционированного доступа', 'Скомпрометированная учетная запись', 'Участник мошеннической деятельности', 'Источник угрозы социальной инженерии'. Количество передаваемых символов не должно превышать 5000."
+          properties:
+            value:
+              type: string
+              example: "abc@example.com"
+              description: "Значение"
+        related_observables_uri:
+          type: object
+          maxLength: 5000
+          description: "URI-адрес. Объект возвращается со следующими типами событий ИБ: 'Зараженный ресурс', 'Источник распространения модулей ВПО', 'Центр управления ВПО', 'Элемент инфраструктуры ВПО', 'Источник эксплуатации уязвимости', 'Источник компрометации учетной записи', 'Источник несанкционированного доступа', 'Источник несанкционированного изменении информации', 'Источник рассылки спам-сообщений', 'Публикация запрещенной законодательством РФ информации', 'Размещение фишингового ресурса', 'Размещение фишингового ресурса', 'Источник сетевого сканирования', 'Участник мошеннической деятельности', 'Источник угрозы социальной инженерии'. Количество передаваемых символов не должно превышать 5000."
+          properties:
+            value:
+              type: string
+              example: "https://badurl.com/index.php"
+              description: "Значение"
+        related_indicators_vuln:
+          type: object
+          maxLength: 5000
+          description: "Описание используемых уязвимостей. Объект возвращается со следующими типами событий ИБ: 'Источник эксплуатации уязвимости', 'Участник DDoS-атаки', 'Источник сетевого сканирования'. Количество передаваемых символов не должно превышать 5000."
+          properties:
+            value:
+              type: string
+              example: "Пароль был admin"
+              description: "Значение"
+        related_indicators_asn:
+          type: string
+          maxLength: 5000
+          example: "AS-12312"
+          description: "Номер подставной Автономной системы (ASN). Строка возвращается со следующими типами событий ИБ: 'Участник захвата сетевого трафика'"
+        related_indicators_as:
+          type: string
+          maxLength: 5000
+          example: "ART"
+          description: "Наименование AS. Строка возвращается со следующими типами событий ИБ: 'Участник захвата сетевого трафика'"
+        related_indicators_as_lir:
+          type: string
+          maxLength: 5000
+          example: "Orange"
+          description: "Наименование LIR. Строка возвращается со следующими типами событий ИБ: 'Участник захвата сетевого трафика'"
+        related_observables_service:
+          type: object
+          maxLength: 5000
+          description: "Сетевая служба и порт/протокол. Объект возвращается со следующими типами событий ИБ: 'Уязвимый ресурс', 'Источник сетевого сканирования', 'Источник несанкционированного доступа', 'Источник эксплуатации уязвимости', 'Участник DDoS-атаки'. Количество передаваемых символов не должно превышать 5000."
+          properties:
+            name:
+              type: string
+              example: "web"
+              description: "Имя службы"
+            value:
+              type: string
+              example: "443/https"
+              description: "порт/протокол"
+        related_observables_as_path:
+          type: string
+          maxLength: 5000
+          example: "344-113"
+          description: "AS-Path до атакованной Автономной системы (ASN). Строка возвращается со следующими типами событий ИБ: 'Участник захвата сетевого трафика'"
+        product_info:
+          maxLength: 5000
+          type: object
+          description: "Наименование и версия уязвимого продукта. Объект возвращается со следующими типами событий ИБ: 'Уязвимый ресурс'. Количество передаваемых символов не должно превышать 5000."
+          properties:
+            name:
+              type: string
+              example: "MS Visio"
+              description: "Наименование"
+            value:
+              type: string
+              example: "2020"
+              description: "Версия"
+        vulnerability_id:
+          type: string
+          example: "BDU:2020-05739"
+          description: "Идентификатор уязвимости. Строка возвращается со следующими типами событий ИБ: 'Уязвимый ресурс'"
+        product_category:
+          type: string
+          example: "Unix-подобные операционные системы и их компоненты"
+          description: "Категория уязвимого программного продукта. Значение из справочника. Строка возвращается со следующими типами событий ИБ: 'Уязвимый ресурс'"
+          enum: [ "Операционные системы Microsoft и их компоненты", "Unix-подобные операционные системы и их компоненты", "Серверное программное обеспечение и его компоненты", "Прикладное программное обеспечение", "Компоненты рабочих станций и серверных платформ", "Телекоммуникационное оборудование", "Средства защиты информации", "Периферийное оборудование", "Промышленное программно-аппаратное оборудование", "Мобильные платформы", "IoT-устройства", "Программное и аппаратное обеспечение в сфере здравоохранения", "Программное и аппаратное обеспечение в сфере науки", "Программное и аппаратное обеспечение в сфере транспорта", "Программное и аппаратное обеспечение в сфере связи", "Программное и аппаратное обеспечение в сфере энергетики", "Программное и аппаратное обеспечение в банковской сфере и иных финансовых сферах", "Программное и аппаратное обеспечение в топливно-энергетическом комплексе", "Программное и аппаратное обеспечение в области атомной энергии", "Программное и аппаратное обеспечение в оборонной промышленности", "Программное и аппаратное обеспечение в ракетно-космической промышленности", "Программное и аппаратное обеспечение в горнодобывающей промышленности", "Программное и аппаратное обеспечение в металлургической промышленности", "Программное и аппаратное обеспечение в сфере химической промышленности" ]
+    #-------- конец блока полей "технические сведения" -----------
+
+    Sorting:
+      title: Сообщения. Сортировка выводимых данных в ответе на запрос
+      description: "Описание формирования параметра для сортировки выводимых данных в ответе на запрос по сообщениям"
+      type: array
+      items:
+        type: object
+        properties:
+          property:
+            type: string
+            enum:
+                - uuid
+                - company
+                - category
+                - type
+                - create_time
+                - detect_time
+                - end_time
+                - updated
+                - int_result
+                - owner_name
+                - reg_number
+                - status
+                - tlp
+            example: "create_time"
+            description: "Одно из полей карточки сообщения, по которому производится сортировка"
+          direction:
+            type: string
+            enum: [ 'ASC','DESC' ]
+            description: "Направление сортировки"
+        required:
+          - property
+          - direction
+      example: '[{"property":"create_time", "direction":"ASC"}]'
+
+    GetMessageFields:
+      title: Сообщения. Формат фильтрации состава возвращаемых полей карточки сообщения
+      description: "Формирование параметра в GET запросе для получения полного состава полей карточки сообщения"
+      type: object
+      properties:
+        fields:
+          type: array
+          items:
+            $ref: '#/components/schemas/MessageFields'
+            description: "теги полей карточки сообщения"
+            type: string
+            enum:
+              - uuid
+              - company
+              - category
+              - type
+              - create_time
+              - detect_time
+              - end_time
+              - updated
+              - event_description
+              - int_result
+              - owner_name
+              - reg_number
+              - status
+              - tlp
+              - inrelated_observables_domain
+              - inrelated_observables_uri
+              - inrelated_observables_ipv4
+              - inrelated_observables_ipv6
+              - inrelated_indicators_domain_malware
+              - inrelated_indicators_domain
+              - inrelated_indicators_ipv4
+              - inrelated_indicators_ipv6
+              - inrelated_indicators_ipv4_malware
+              - inrelated_indicators_ipv6_malware
+              - inrelated_indicators_hash
+              - inrelated_indicators_email
+              - inrelated_indicators_uri
+              - related_observables_email
+              - related_observables_uri
+              - related_indicators_vuln
+              - related_indicators_asn
+              - related_indicators_as
+              - related_indicators_as_lir
+              - related_observables_service
+              - related_observables_as_path
+              - product_info
+              - vulnerability_id
+              - product_category
+      example: '["uuid", "company", "category", "type", "create_time", "detect_time", "end_time", "updated", "event_description", "inrelated_observables_domain", "inrelated_observables_uri", "inrelated_observables_ipv4", "inrelated_observables_ipv6", "inrelated_indicators_domain_malware", "inrelated_indicators_domain", "inrelated_indicators_ipv4", "inrelated_indicators_ipv6", "inrelated_indicators_ipv4_malware", "inrelated_indicators_ipv6_malware", "int_result", "owner_name", "reg_number", "status", "tlp", "malware_hash", "inrelated_indicators_email", "inrelated_indicators_uri", "related_observables_email", "related_observables_uri", "related_indicators_vuln", "related_indicators_asn", "related_indicators_as", "related_indicators_as_lir", "related_observables_service", "related_observables_as_path", "product_info", "vulnerability_id", "product_category"]'
+
+    AddFiles:
+      title: Сообщения. Добавление файлов к сообщению
+      type: object
+      properties:
+        uuid:
+          type: string
+          maxLength: 5000
+          example: "b09da8fd-b50c-7777-88e4-cd7e2f420abb"
+          description: "Уникальный идентификатор карточки сообщения"
+        company:
+          type: string
+          maxLength: 5000
+          example: "АО \"Ромашка\""
+          description: "Обязательно для заполнения MSSP-провайдерам. Краткое наименование организации субъекта ГосСОПКА"
+        files:
+          type: string
+          format: binary
+          description: "Передаваемый файл, можно добавлять несколько. Размер не более 50Мб"
+      required:
+        - uuid
+        - company
+        - files
+      description: "Post запрос для передачи файлов в созданное уведомление. Размер файла должен быть не более 50Мб"
+
+
+    MessageFilter:
+      title: Сообщения. Формат фильтрации сообщений по атрибутам
+      description: "Описание формирования фильтра в параметрах GET запроса для получения конкретных карточек
+        сообщений"
+      type: array
+      items:
+        type: object
+        properties:
+          property:
+            type: array
+            items:
+              type: string
+              enum:
+                - uuid
+                - reg_number
+                - category
+                - status
+                - create_time
+                - updated
+            example: "uuid"
+            description: "Одно из полей сообщения, по которому производится фильтрация"
+          operator:
+            type: string
+            enum: ['=', '==', '!=', '/=', '>', '<', '>=', '<=', 'eq', 'ne', 'gt', 'lt', 'gte', 'lte', 'ge', 'le', 'in', 'notin', 'not in', 'not_in', 'like', 'ilike', 'is_null', 'not ilike', 'is null', 'between', 'not between']
+            description: > 
+              "Оператор, используемый при фильтрации"
+               * `=`, `==`, `eq` - Равно. Пример: *[{"property": "category", "operator": "=" , "value": "Уведомление о компьютерной атаке"}]*
+               * `!=`, `/=`, `ne` - Не равно. Пример: *[{"property": "category", "operator": "!" , "value": "Уведомление о компьютерной атаке"}]*
+               * `>`, `gt` - Больше. Применяется для полей типа дата. Пример: *[{"property": "create_time", "operator": ">" , "value": "2024-10-11T11:18:01.110Z"}]*
+               * `<`, `lt` - Меньше. Применяется для полей типа дата. Пример: *[{"property": "create_time", "operator": "<" , "value": "2024-10-11T11:18:01.110Z"}]*
+               * `>=`, `ge`, `gte` - Больше или равно. Применяется для полей типа дата. Пример: *[{"property": "create_time", "operator": ">=" , "value": "2024-10-11T"}]*
+               * `<=`, `le`, `lte` - Меньше или равно. Применяется для полей типа дата. Пример: *[{"property": "create_time", "operator": "<=" , "value": "2024-10-11"}]*
+               * `in` - Поиск по вхождению значений. Применяется для полей типа выпадающего списка. Пример: *[{"property": "category", "operator": "in" , "value":  ["Уведомление о компьютерном инциденте", "Уведомление о компьютерной атаке"]}]*
+               * `not in`, `notin`, `not_in` -  Исключение списка вариантов. Применяется для полей типа выпадающего списка. Пример: *[{"property": "category", "operator": "not in" , "value": ["Уведомление о компьютерном инциденте", "Уведомление о компьютерной атаке"]}]*
+               * `like`, `ilike` - Содержание подстроки. Применяется для текстовых строк. Пример: *[{"property": "event_description", "operator": "like" , "value":  "Описание"}]*
+               * `not ilike`- Отсутствие подстроки. Применяется для текстовых строк. Пример: *[{"property": "event_description", "operator": "not ilike" , "value":  "Описание"}]*
+               * `between` - Поиск по вхождению в диапазон дат по двум значениям. Пример: *[{"property": "detect_time", "operator": "between" , "value":  ["2024-10-27", "2024-10-29"]}]*
+               * `not between` - Поиск по отсутствию вхождения в диапазон дат по двум значениям. Пример: *[{"property": "detect_time", "operator": "not between" , "value":  ["2024-10-27", "2024-10-29"]}]*
+               * `is_null`, `is null` - Отсутствие значения в поле. Пример: *[{"property": "detection_tool", "operator": "is null" , "value":  null}]*
+          value:
+            type: string
+            example: "12967d4c-4f3d-4956-9f1b-e672849959c3"
+            description: "Значение параметра, которое будет сравниваться со значениями выбранного поля в property"
+      example: '[{"property":"uuid","operator":"eq","value":"01d238ec-0a4e-4cd4-9647-ac535bc50c14"}]'
+
+
+    InProcess:
+      required:
+        - uuid
+        - status
+      title: Сообщения. Передача в сообщение статуса "В работе"
+      description: "Перечень полей при создании POST запроса в API ЛК по сообщениям от НКЦКИ"
+      type: object
+      properties:
+        uuid:
+          type: string
+          example: "4f00b46c-4543-47b2-93f3-3bf029563623"
+          description: "Уникальный идентификатор сообщения от НКЦКИ в ЛК"
+        status:
+          type: string
+          example:  "В работе"
+          description: "Статус обработки сообщения от НКЦКИ"
+          enum: [ "В работе"]
+      example:
+        "uuid": "2833b6f7-0847-47e7-941c-c39f1ff12feb"
+        "status": "В работе"
+
+
+    TheResult:
+      required:
+        - uuid
+        - status
+        - int_result
+      title: Сообщения. Передача в сообщение статуса "Принято решение"
+      description: "Перечень полей при создании POST запроса в API ЛК по сообщениям от НКЦКИ"
+      type: object
+      properties:
+        uuid:
+          type: string
+          example: "4f00b46c-4543-47b2-93f3-3bf029563623"
+          description: "Уникальный идентификатор сообщения от НКЦКИ в ЛК"
+        status:
+          type: string
+          example:  "В работе"
+          description: "Статус обработки сообщения от НКЦКИ"
+          enum: [ "Принято решение" ]
+        int_result:
+          type: string
+          example: "Меры приняты"
+          description: "Результат принятого решения"
+          enum: [ "Меры приняты", "Информация учтена", "Сведения не подтверждены" ]
+      example:
+        "uuid": "d0fd6658-afd2-4712-b954-c3a0494d7436"
+        "status": "Принято решение"
+        "in_result": "Информация учтена"
+
+
+    Comments:
+      example: {"incident.uuid": "35093195-2854-459a-810f-a9fd603d0e07",
+                "data": {"comment": "Комментарий"}
+               }
+      title: Комментарии. Создание комментариев
+      type: object
+      properties:
+        incident.uuid:
+          type: string
+          example: "35093195-2854-459a-810f-a9fd603d0e07"
+          description: "Идентификатор сообщения"
+        data:
+          type: object
+          properties:
+            comment:
+              type: string
+              example: hello
+              description: "Комментарий"
+
+    CommentsMianFilter:
+      example: 'filter=[{"property":"incident_uuid","operator":"eq","value":"01d238ec-0a4e-4cd4-9647-ac535bc50c14"}]&sort=[{"property":"create_time", "direction":"ASC"}]&limit=10&offset=0'
+      title: Комментарии. Описание параметров
+      type: object
+      properties:
+        filter:
+          type: array
+          items:
+            $ref: '#/components/schemas/CommentFilter'
+        sort:
+          example: 'sort=[{"property":"create_time", "direction":"ASC"}]'
+          type: array
+          items:
+            $ref: '#/components/schemas/CommentSorting'
+        limit:
+          $ref: '#/components/schemas/Limit'
+        offset:
+          $ref: '#/components/schemas/Offset'
+
+
+    CommentFilter:
+      title: Комментарии. Filter
+      description: >- 
+          Описание формирования фильтра в параметрах GET запроса для получения комментариев карточки сообщения
+      type: array
+      items:
+        type: object
+        properties:
+          property:
+            type: string
+            enum: [ "login", "create_time", "incident_id", "incident_uuid" ]
+            example: "incident_uuid"
+            description: "Одно из полей сообщения, по которому будет проводиться фильтрация"
+  
+          operator:
+            type: string
+            enum: ['eq', 'ge', 'gt', 'gte', 'le', 'lt', 'lte', 'ne', '=', 'in', 'not in', '>', '<', '>=', '<=', '!=', 'between', 'not between']
+            description: > 
+              "Оператор, используемый при фильтрации"
+               * `=`,  `eq` - Равно. Пример: *[{"property":"login","operator":"eq","value":"ТИ НКЦКИ"}]*
+               * `!=`, `ne` - Не равно. Пример: *[{"property":"login","operator":"!=","value":"ТИ НКЦКИ"}]*
+               * `>`, `gt` - Больше. Применяется для полей типа дата. Пример: *[{"property":"create_time","operator":">","value":"2024-10-29"}]*
+               * `<`, `lt` - Меньше. Применяется для полей типа дата. Пример: *[{"property":"create_time","operator":"lt","value":"2024-10-29"}]*
+               * `>=`, `ge`, `gte` - Больше или равно. Применяется для полей типа дата. Пример: *[{"property":"create_time","operator":"ge","value":"2024-10-29"}]*
+               * `<=`, `le`, `lte` - Меньше или равно. Применяется для полей типа дата. Пример: *[{"property":"create_time","operator":"<=","value":"2024-10-29"}]*
+               * `in` - Поиск по вхождению значений. Пример: *[{"property":"login","operator":"in","value":["ТИ НКЦКИ", "RMSH"]}]*
+               * `not in` -  Исключение списка вариантов. Пример: *[{"property":"login","operator":"in","value":["ТИ НКЦКИ", "RMSH"]}]*
+               * `between` - Поиск по вхождению в диапазон дат по двум значениям. Пример: *[{"property":"create_time",  "operator": "between" , "value":  ["2024-10-27", "2024-10-29"]}]*
+               * `not between` - Поиск по отсутствию вхождения в диапазон дат по двум значениям. Пример: *[{"property":"create_time",  "operator": "between" , "value":  ["2024-10-27", "2024-10-29"]}]*
+
+          value:
+            type: string
+            example: "12967d4c-4f3d-4956-9f1b-e672849959c3"
+            description: "Значение параметра, которое будет сравниваться со значениями выбранного поля в property"
+      example: '{"property":"incident_uuid","operator":"eq","value":"01d238ec-0a4e-4cd4-9647-ac535bc50c14"}'
+
+
+
+    CommentSorting:
+      title: Комментарии. Sort
+      example: '{"property":"create_time", "direction":"ASC"}'
+      description: "Описание формирования параметра для сортировки выводимых данных в ответе на запрос по комментариям"
+      type: object
+      properties:
+        property:
+          type: string
+          enum: ["id", "login", "incident_id", "create_time"]
+          example: "create_time"
+          description: "Наименование поля, по которому будет проводиться сортировка"
+        direction:
+          type: string
+          enum: ['ASC','DESC']
+          description: "Направление сортировки"
+      required:
+          - property
+          - direction
+
+    Limit:
+      title: Количество выводимых объектов в ответе. Limit
+      type: integer
+      example: 10
+      description: "Количество выводимых элементов в ответе на запрос. Если не указывать значение limit (значение должно быть <= 1000), то по умолчанию будут выводиться первые 1000 элементов"
+
+    Offset:
+      title: Количество выводимых объектов в ответе. Offset
+      type: integer
+      example: 100
+      description: "Порядковый номер элемента, с которого будет начинаться вывод в ответе на запрос. Если не указывать значение offset, то по умолчанию сообщения будут выводиться с 0 элемента"
+
+

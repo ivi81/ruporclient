@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/tidwall/gjson"
-	cons "gitlab.cloud.gcm/i.ippolitov/go-ruporclient/rupor/api/cons"
+	cons "gitlab.cloud.gcm/i.ippolitov/go-ruporclient/rupor/cons"
 )
 
 const timeLayout = "2022-06-20T16:36:28.000Z"

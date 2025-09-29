@@ -1,23 +1,10 @@
-//config.go расширяет функционал go-microconfig в части настроек клиента к rupor
+// config.go описание конфигурации клиента RUPOR
 package config
 
-import "gitlab.cloud.gcm/i.ippolitov/go-microconfig/microconfig"
-
-//RuporClientCfg - структура данных описывающая информацию о конфигурации модуля логирования микросервисов
-type RuporClientCfg struct {
-	Url string `yaml:"url"`
-	Key string `yaml:"apiKey"`
-}
-
-//SetValuesFromEnv загружает значение перменных среды которые имеют префикс заданный в envPrefix
-//в структуру RuporClientCfg
-func (cfg *RuporClientCfg) SetValuesFromEnv(envPrefix string) {
-	envPref := microconfig.JoinStr(envPrefix, RuporPrefix)
-	if url, ok := microconfig.LookupEnv(microconfig.JoinStr(envPref, "URL")); ok {
-		cfg.Url = url
-	}
-
-	if apiKey, ok := microconfig.LookupEnv(microconfig.JoinStr(envPref, "API-KEY")); ok {
-		cfg.Key = apiKey
-	}
+// ClientRuporCfg - структура данных описывающая информацию о конфигурации модуля логирования микросервисов
+type ClientRuporCfg struct {
+	Host   string `yaml:"url" env:"HOST"`
+	Port   int    `yaml:"port" env:"PORT"`
+	ApiKey string `yaml:"apiKey" env:"API_KEY"`
+	UserAgent string `yaml:"userAgent" env:"USER_AGENT"`
 }

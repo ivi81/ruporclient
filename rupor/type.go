@@ -11,9 +11,9 @@ import (
 	"strconv"
 
 	"gitlab.cloud.gcm/i.ippolitov/debugging"
-	"gitlab.cloud.gcm/i.ippolitov/go-ruporclient/rupor/api/param"
-	"gitlab.cloud.gcm/i.ippolitov/go-ruporclient/rupor/api/resp"
-	"gitlab.cloud.gcm/i.ippolitov/go-ruporclient/rupor/logger"
+	"gitlab.cloud.gcm/i.ippolitov/go-ruporclient/logger"
+	"gitlab.cloud.gcm/i.ippolitov/go-ruporclient/rupor/param"
+	"gitlab.cloud.gcm/i.ippolitov/go-ruporclient/rupor/resp"
 )
 
 type RuporApiClient struct {

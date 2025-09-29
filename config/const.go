@@ -2,5 +2,5 @@
 package config
 
 const (
-	RuporPrefix = "RUPOR_CLIENT"
+	ClientRuporPrefix = "RUPOR_CLIENT"
 )

@@ -6,10 +6,11 @@ import (
 
 // CommonInf объект содержащий общие для всех типо документов информационные поля
 type CommonObj struct {
-	Uuid             string
-	Category         CustomString `json:"category"`
-	Company          CustomString `json:"company"`
-	CreateTime       time.Time    `json:"create_time"`       //Дата и время регистрации. Дата и время регистрации сообщения от НКЦКИ. Заполняется по правилам стандарта ISO 8601. Используется timeZone UTC
+	Uuid       string
+	Category   CustomString `json:"category"`
+	Company    CustomString `json:"company"`
+	CreateTime time.Time    `json:"create_time"` //Дата и время регистрации. Дата и время регистрации сообщения от НКЦКИ. Заполняется по правилам стандарта ISO 8601. Используется timeZone UTC
+
 	DetectTime       time.Time    `json:"detect_time"`       //Дата и время выявления. Дата и время выявления инцидента.
 	EndTime          time.Time    `json:"end_time"`          //Дата и время завершения. Дата и время завершения инцидента.
 	Updated          time.Time    `json:"updated"`           //Дата и время последнего обновления карточки документа

@@ -1,0 +1,1424 @@
+openapi: "3.1.0"
+info:
+  title: Личный кабинет ГосСОПКА
+  description: >-
+    Описание публичного API Личного кабинета ГосСОПКА. Работа с организацией
+  version: 1.0.0
+servers:
+  - url: https://lk.cert.gov.ru/api/v2
+    description: "Личный кабинет"
+  - url: https://test-lk.cert.gov.ru/api/v2
+    description: "Тестовый Личный кабинет"
+
+paths:
+  /companies:
+    get:
+      summary: Получение информации по организациям
+      description: Запрос позволяет получить данные по организациям, до которых имеет доступ субъект ГосСОПКА.
+      tags:
+        - Организации
+      parameters:
+        - in: query
+          name: limit
+          required: true
+          schema:
+            items:
+              $ref: '#/components/schemas/Limit'
+          example: 1000
+
+        - in: query
+          name: filter
+          required: false
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/CompaniesFilter'
+          example: '[{"property":"settings_sname","operator":"eq","value":"АО \"Ромашка\""}]'
+
+        - in: query
+          name: fields
+          required: false
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/CompaniesFields'
+          examples:
+            allFields:
+              summary: Пример получения данных по всем полям
+              value: [uuid,id,settings_sname,settings_name,settings_inn_of_subject,settings_kpp,settings_brand_name,settings_site_url,settings_zipcode,settings_city,settings_address,settings_actual_same_as_legal_address,settings_actual_zipcode,settings_actual_city,settings_actual_address,settings_mail_same_as_actual_address,settings_mail_zipcode,settings_mail_city,settings_mail_address,settings_subject_cii,settings_subject_type,settings_okogu_id,settings_geo_code,settings_notification_email]
+            someFields:
+              summary: Пример получения данных по определенным полям
+              value: [uuid,id,settings_name,settings_sname]
+
+        - in: query
+          name: start
+          required: false
+          schema:
+            items:
+              $ref: '#/components/schemas/Start'
+          example: 0
+
+        - in: query
+          name: sort
+          required: false
+          schema:
+            items:
+              $ref: '#/components/schemas/Sort'
+          example: '[{"property":"settings_sname", "direction":"ASC"}]'
+
+
+      responses:
+        '200':
+          description: OK — успешный запрос
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponseCompaniesGet'
+              examples:
+                one:
+                  summary: Базовый ответ на запрос
+                  value:
+                    data:
+                      - uuid: 7919aa02-7714-43e1-9dde-68e0edb64ef5
+                        name: АО "Ромашка"
+                        updatedAt: 2022-09-01T11:59:43.160Z
+                    success: true
+                    total: 1
+                    uber-trace-id: c32060f037afa280:c32060f037afa280:0:0
+
+                two:
+                  summary: Пример ответа на запрос по всем полям
+                  value:
+                    data:
+                    - uuid: '7919aa02-7714-43e1-9dde-68e0edb64ef5'
+                      id: 123
+                      settings_sname: 'АО "Ромашка"'
+                      settings_name: 'Акционерное Общество "Ромашка"'
+                      settings_inn_of_subject: '500100732250'
+                      settings_kpp: '999999999'
+                      settings_brand_name: 'Ромашка-new'
+                      settings_site_url: 'www.romashka.ru'
+                      settings_zipcode: '11111'
+                      settings_city: 'г. Санкт-Петербург'
+                      settings_address: 'ул. Ромашкина, 152'
+                      settings_actual_same_as_legal_address: 'true'
+                      settings_actual_zipcode: '2222'
+                      settings_actual_city: 'г. Москва2'
+                      settings_actual_address: 'ул. Ромашкина, 151'
+                      settings_mail_same_as_actual_address: 'true'
+                      settings_mail_zipcode: '3333'
+                      settings_mail_city: 'г. Москва'
+                      settings_mail_address: 'ул. Ромашкина, 15'
+                      settings_subject_cii: 'false'
+                      settings_subject_type: nonprofit_org
+                      settings_okogu_id: '6666666'
+                      settings_geo_code: RU-MOW
+                      settings_notification_email: ivanov@romashka.ru
+                    success: true
+                    total: 1
+                    uber-trace-id: c32060f037afa280:c32060f037afa280:0:0
+
+        '400':
+          description: Сервер обнаружил в запросе клиента ошибочные данные
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorBadRequest'
+
+        '404':
+          description: Запрашиваемый URL не существует
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseNotFound'
+
+  /companies/{uuid}:
+    put:
+      summary: Изменение данных организации
+      description: Запрос позволяет изменить данные об организации
+      tags:
+        - Организации
+      parameters:
+        - in: path
+          name: uuid
+          example: 7919aa02-7714-43e1-9dde-68e0edb64ef5
+          required: true
+          description: "Уникальный идентификатор организации"
+          schema:
+            type:
+            - string
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+              schema:
+                $ref: '#/components/schemas/CompanyFieldsUpdate'
+
+      responses:
+        '200':
+          description: OK — успешный запрос
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponseCompaniesPut'
+
+        '400':
+          description: Сервер обнаружил в запросе клиента ошибочные данные
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorBadRequest'
+
+        '404':
+          description: Запрашиваемый URL не существует
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseNotFound'
+
+  /am/custom/networks:
+    get:
+      summary: Получение информации по сетям
+      description: Запрос позволяет получить данные по сетям, до которых имеет доступ субъект ГосСОПКА.
+      tags:
+        - Сети
+
+      parameters:
+        - in: query
+          name: limit
+          schema:
+            items:
+              $ref: '#/components/schemas/Limit'
+          example: 1000
+
+        - in: query
+          name: filter
+          required: false
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/NetworksFilter'
+          examples:
+            one:
+              summary: Пример получения данных по адресу сети
+              value: '[{"property": "field_address", "value": "1.1.1.1/32"}]'
+            two:
+              summary: Пример получения сетей по id организации
+              value: '[{"property": "company_id", "value":"7631"}]'
+
+        - in: query
+          name: fields
+          required: false
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/NetworksFields'
+
+        - in:  query
+          name: start
+          required: false
+          schema:
+            items:
+              $ref: '#/components/schemas/Start'
+          example: 0
+
+
+      responses:
+        '200':
+          description: OK — успешный запрос
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponseNetworksGet'
+
+        '400':
+          description: Сервер обнаружил в запросе клиента ошибочные данные
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorBadRequest'
+
+        '404':
+          description: Запрашиваемый URL не существует
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseNotFound'
+
+    post:
+      summary: Добавление новой подсети
+      tags:
+        - "Сети"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/NetworksPost'
+
+      responses:
+        '200':
+          description: OK — успешный запрос
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssetsResponseFields'
+
+        '400':
+          description: Сервер обнаружил в запросе клиента ошибочные данные
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorBadRequest'
+
+        '404':
+          description: Запрашиваемый URL не существует
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseNotFound'
+
+    put:
+      summary: Изменение существующей записи
+      tags:
+        - "Сети"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/NetworksPut'
+
+      responses:
+        '200':
+          description: OK — успешный запрос
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssetsResponseFields'
+              example: {
+                    "success": true,
+                    "object": [
+                      {
+                        "created": false,
+                        "error": false,
+                        "id": 1234,
+                        "uuid": "87e37777-0a7c-4879-888b-86f1d9cdb175"
+                      }
+                    ]
+                  }
+
+        '400':
+          description: Сервер обнаружил в запросе клиента ошибочные данные
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorBadRequest'
+
+        '404':
+          description: Запрашиваемый URL не существует
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseNotFound'
+
+    delete:
+      summary: Удаление существующей записи
+      tags:
+        - "Сети"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/AssetsDelete'
+
+      responses:
+        '200':
+          description: OK — успешный запрос
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssetsDeleteResponse'
+
+        '400':
+          description: Сервер обнаружил в запросе клиента ошибочные данные
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorBadRequest'
+
+        '404':
+          description: Запрашиваемый URL не существует
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseNotFound'
+
+
+
+  /am/custom/domains:
+
+    get:
+      summary: Получение информации по доменам
+      description: Запрос позволяет получить данные по доменам, до которых имеет доступ субъект ГосСОПКА.
+      tags:
+        - Домены
+
+      parameters:
+        - in: query
+          name: limit
+          schema:
+            items:
+              $ref: '#/components/schemas/Limit'
+          example: 1000
+
+        - in: query
+          name: filter
+          required: false
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/DomainsFilter'
+          examples:
+            one:
+              summary: Пример получения данных по доменному имени
+              value: '[{"property": "field_domain", "value": "romashka.ru"}]'
+            two:
+              summary: Пример получения сетей по id организации
+              value: '[{"property": "company_id", "value":"7631"}]'
+
+        - in: query
+          name: fields
+          required: false
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/DomainsFields'
+
+        - in: query
+          name: start
+          required: false
+          schema:
+            items:
+              $ref: '#/components/schemas/Start'
+          example: 0
+      responses:
+        '200':
+          description: OK — успешный запрос
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponseDomainsGet'
+
+        '400':
+          description: Сервер обнаружил в запросе клиента ошибочные данные
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorBadRequest'
+
+        '404':
+          description: Запрашиваемый URL не существует
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseNotFound'
+
+    post:
+      summary: Добавление нового домена
+      tags:
+        - "Домены"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/DomainsPost'
+
+      responses:
+        '200':
+          description: OK — успешный запрос
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssetsResponseFields'
+
+        '400':
+          description: Сервер обнаружил в запросе клиента ошибочные данные
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorBadRequest'
+
+        '404':
+          description: Запрашиваемый URL не существует
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseNotFound'
+
+    put:
+      summary: Изменение существующей записи
+      tags:
+        - "Домены"
+      requestBody:
+        required: true
+        content:
+         application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/DomainsPut'
+
+      responses:
+        '200':
+          description: OK — успешный запрос
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssetsResponseFields'
+              example: {
+                    "success": true,
+                    "object": [
+                      {
+                        "created": false,
+                        "error": false,
+                        "id": 1234,
+                        "uuid": "87e37777-0a7c-4879-888b-86f1d9cdb175"
+                      }
+                    ]
+                  }
+
+        '400':
+          description: Сервер обнаружил в запросе клиента ошибочные данные
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorBadRequest'
+
+        '404':
+          description: Запрашиваемый URL не существует
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseNotFound'
+
+    delete:
+      summary: Удаление существующей записи
+      tags:
+        - "Домены"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/AssetsDelete'
+
+      responses:
+        '200':
+          description: OK — успешный запрос
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssetsDeleteResponse'
+
+        '400':
+          description: Сервер обнаружил в запросе клиента ошибочные данные
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorBadRequest'
+
+        '404':
+          description: Запрашиваемый URL не существует
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponseNotFound'
+
+
+
+##############################
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type:
+      - apiKey
+      in: header
+      name: "x-token"
+
+  schemas:
+    CompanyFields:
+      title: Состав полей карточки организации
+      description: >-
+        В этом блоке описан состав полей, который находится в ответе на получение карточки организации
+      type:
+      - object
+      properties:
+        uuid:
+          type:
+            - string
+          example: "4f00b46c-4543-47b2-93f3-3bf029563623"
+          description: "Уникальный идентификатор организации"
+        id:
+          type:
+          - integer
+          example: 123
+          description: "Внутренний идентификатор организации"
+        name:
+          type:
+            - string
+          example: "АО \"Ромашка\""
+          description: "Сокращенное наименование организации"
+        settings_name:
+          type:
+            - string
+          example: "АО \"Ромашка\""
+          description: "Полное наименование организации"
+        settings_inn_of_subject:
+          type:
+            - string
+          example: "500100732259"
+          description: "ИНН"
+        settings_kpp:
+          type:
+            - string
+          example: "555555555"
+          description: "КПП"
+        settings_brand_name:
+          type:
+            - string
+          example: "Ромашка"
+          description: "Фирменное наименование (бренд)"
+        settings_site_url:
+          type:
+            - string
+          example: "www.romashka.ru"
+          description: "Ссылка на официальный сайт"
+        settings_zipcode:
+          type:
+            - string
+          example: "55555"
+          description: "Юридический адрес организации: Почтовый индекс"
+        settings_city:
+          type:
+            - string
+          example: "г. Москва"
+          description: "Юридический адрес организации: Населенный пункт"
+        settings_address:
+          type:
+            - string
+          example: "ул. Ромашкина, 15"
+          description: "Юридический адрес организации: Адрес"
+        settings_actual_same_as_legal_address:
+          type:
+          - boolean
+          example: true
+          description: "Фактический адрес организации совпадает с юридическим"
+        settings_actual_zipcode:
+          type:
+            - string
+          example: "55555"
+          description: "Фактический адрес организации: Почтовый индекс"
+        settings_actual_city:
+          type:
+            - string
+          example: "г. Москва"
+          description: "Фактический адрес организации: Населенный пункт"
+        settings_actual_address:
+          type:
+            - string
+          example: "ул. Ромашкина, 15"
+          description: "Фактический адрес организации: Адрес"
+        settings_mail_same_as_actual_address:
+          type:
+          - boolean
+          example: false
+          description: "Почтовый адрес совпадает с фактическим"
+        settings_mail_zipcode:
+          type:
+            - string
+          example: "55555"
+          description: "Почтовый адрес организации: Почтовый индекс"
+        settings_mail_city:
+          type:
+            - string
+          example: "г. Москва"
+          description: "Почтовый адрес организации: Населенный пункт"
+        settings_mail_address:
+          type:
+            - string
+          example: "ул. Ромашкина, 15"
+          description: "Почтовый адрес организации: Адрес"
+        settings_region:
+          type:
+            - string
+          example: "Москва"
+          description: "Субъект Российской Федерации"
+        settings_subject_cii:
+          type:
+          - boolean
+          example: true
+          description: "Субъект КИИ"
+        settings_subject_type:
+          type:
+            - string
+          enum:
+            - federal
+            - regional
+            - centrobank
+            - profit_org
+            - nonprofit_org
+            - local_gov
+            - individual
+          description: >- 
+            Тип субъекта. Поддерживаются следующие варианты:  'Федеральный орган государственной власти': 'federal', 'Региональный орган государственной власти': 'regional', 
+            'Центральный банк Российской Федерации': 'centrobank', 'Некоммерческая организация': 'nonprofit_org', 'Коммерческая организация': 'profit_org', 'Местное самоуправление': 'local_gov', 
+            'Индивидуальный предприниматель': 'individual'
+        settings_okogu_id:
+          type:
+            - string
+          example: "5555555"
+
+    CompanyFieldsUpdate:
+      title: Изменение полей карточки организаций
+      description: Формат запроса, использующийся для редактирования значений карточки организаций
+      type:
+      - object
+      properties:
+        values:
+          type:
+          - object
+          properties:
+            inn_of_subject:
+              type:
+                - string
+              example: "500100732259"
+              description: "ИНН"
+            kpp:
+              type:
+                - string
+              example: "555555555"
+              description: "КПП"
+            brand_name:
+              type:
+              - string
+              example: "Ромашка"
+              description: "Фирменное наименование (бренд)"
+            site_url:
+              type:
+                - string
+              example: "www.romashka.ru"
+              description: "Ссылка на официальный сайт"
+            zipcode:
+              type:
+               - string
+              example: "55555"
+              description: "Юридический адрес организации: Почтовый индекс"
+            city:
+              type:
+                - string
+              example: "г. Москва"
+              description: "Юридический адрес организации: Населенный пункт"
+            address:
+              type:
+                - string
+              example: "ул. Ромашкина, 15"
+              description: "Юридический адрес организации: Адрес"
+            actual_same_as_legal_address:
+              type:
+              - boolean
+              example: true
+              description: "Фактический адрес организации совпадает с юридическим"
+            actual_zipcode:
+              type:
+                - string
+              example: "55555"
+              description: "Фактический адрес организации: Почтовый индекс"
+            actual_city:
+              type:
+                - string
+              example: "г. Москва"
+              description: "Фактический адрес организации: Населенный пункт"
+            actual_address:
+              type:
+                - string
+              example: "ул. Ромашкина, 15"
+              description: "Фактический адрес организации: Адрес"
+            mail_same_as_actual_address:
+              type:
+              - boolean
+              example: false
+              description: "Почтовый адрес совпадает с фактическим"
+            mail_zipcode:
+              type:
+                  - string
+              example: "55555"
+              description: "Почтовый адрес организации: Почтовый индекс"
+            mail_city:
+              type:
+                  - string
+              example: "г. Москва"
+              description: "Почтовый адрес организации: Населенный пункт"
+            mail_address:
+              type:
+                 - string
+              example: "ул. Ромашкина, 15"
+              description: "Почтовый адрес организации: Адрес"
+            region:
+              type:
+                 - string
+              example: "Москва"
+              description: "Субъект Российской Федерации"
+            subject_cii:
+              type:
+                - boolean
+              example: true
+              description: "Субъект КИИ"
+            subject_type:
+              type:
+                - string
+              enum:
+                - federal
+                - regional
+                - centrobank
+                - profit_org
+                - nonprofit_org
+                - local_gov
+                - individual
+              description: >- 
+                Тип субъекта. Поддерживаются следующие варианты:  'Федеральный орган государственной власти': 'federal', 'Региональный орган государственной власти': 'regional', 
+                'Центральный банк Российской Федерации': 'centrobank', 'Некоммерческая организация': 'nonprofit_org', 'Коммерческая организация': 'profit_org', 'Местное самоуправление': 'local_gov', 
+                'Индивидуальный предприниматель': 'individual'
+            okogu_id:
+              type:
+                 - string
+              example: "5555555"
+
+    ### response ###
+    SuccessResponseCompaniesPut:
+      title: Успешный ответ при обновлении организации
+      description: OK — успешный запрос
+      type:
+        - object
+      properties:
+        object:
+          type:
+            - object
+          properties:
+            id:
+              type:
+                - integer
+              example: 180
+            uuid:
+              type:
+                - string
+              example: "4f00b46c-4543-47b2-93f3-3bf029563623"
+        success:
+          type:
+            - boolean
+          example: true
+
+    SuccessResponseCompaniesGet:
+      title: Успешный ответ при получении данных по организациям
+      type:
+        - object
+      properties:
+        data:
+          type:
+           - array
+          items:
+            $ref: '#/components/schemas/CompanyFields'
+        success:
+          title: Успешность выполнения запроса
+          type:
+            - boolean
+          example: true
+        total:
+          title: Количество организаций
+          type:
+           - integer
+          example: 1
+
+    SuccessResponseNetworksGet:
+      title: Успешный ответ при получении данных по сетям
+      description: OK — успешный запрос
+      type:
+        - object
+      properties:
+        data:
+          type:
+          - array
+          items:
+            type: object
+            properties:
+              company:
+                title: Организация
+                type: object
+                properties:
+                  uuid:
+                    title: Уникальный идентификатор организации
+                    type:
+                      - string
+                    example: 739c8a19-faf3-4070-ab4b-e61b1d4b48ff
+                  name:
+                    title: Наименование организации
+                    type:
+                     - string
+                    example: АО "Ромашка"
+              uuid:
+                  title: Уникальный идентификатор сети
+                  type:
+                  - string
+                  example: e56f8a4f-181a-4489-ae88-4f367dfa9a7e
+              field_address:
+                  title: Сеть
+                  type:
+                   - string
+                  example: 1.1.1.1/32
+              field_resource_description:
+                  title: Описание сети
+                  type:
+                  - string
+                  example: description
+        success:
+          title: Успешность выполнения запроса
+          type:
+          - boolean
+          example: true
+        total:
+          title: Количество сетей
+          type:
+          - integer
+          example: 1
+
+    SuccessResponseDomainsGet:
+      title: Успешный ответ при получении данных по доменам
+      description: OK — успешный запрос
+      type:
+        - object
+      properties:
+        data:
+          type:
+          - array
+          items:
+            type:
+            - object
+            properties:
+              company:
+                title: Организация
+                type:
+                  - object
+                properties:
+                  uuid:
+                    title: Уникальный идентификатор организации
+                    type:
+                     - string
+                    example: 739c8a19-faf3-4070-ab4b-e61b1d4b48ff
+                  name:
+                    title: Наименование организации
+                    type:
+                     - string
+                    example: АО "Ромашка"
+              uuid:
+                  title: Уникальный идентификатор домена
+                  type:
+                   - string
+                  example: e56f8a4f-181a-4489-ae88-4f367dfa9a7e
+              field_domain:
+                  title: Наименование домена
+                  type:
+                  - string
+                  example: romashka.ru
+              field_resource_description:
+                  title: Описание домена
+                  type:
+                   - string
+                  example: description
+        success:
+          title: Успешность выполнения запроса
+          type:
+          - boolean
+          example: true
+        total:
+          title: Количество доменов
+          type:
+          - integer
+          example: 1
+
+
+    ErrorBadRequest:
+      title: Bad Request
+      description: Сервер обнаружил в запросе клиента ошибочные данные
+      type:
+        - object
+      properties:
+        success:
+          type:
+          - boolean
+          description: Флаг успешности запроса
+          example: false
+        message:
+          type:
+            - string
+          description: Сообщение об ошибке
+          example: '[400 Bad Request] PublicApiError: Can't get field info for tag 'text1'"'
+        error:
+          type:
+            - string
+          description: Описание ошибки
+          example: "PublicApiError: Can't get field info for tag 'text1'"
+        statusCode:
+          type:
+          - integer
+          description: Код статуса ответа
+          example: 400
+
+    ErrorResponseNotFound:
+      title: Not Found
+      description: Запрашиваемый URL не существует
+      type:
+      - object
+      properties:
+        success:
+          type:
+          - boolean
+          description: Флаг успешности запроса
+          example: false
+        message:
+          type:
+            - string
+          description: Сообщение об ошибке
+          example: "[404 Not Found] "
+        error:
+          type:
+            - string
+          description: Описание ошибки
+          example: ""
+        statusCode:
+          type:
+          - integer
+          description: Код статуса ответа
+          example: 404
+
+    ### parameters ###
+    CompaniesFilter:
+      title: Filter
+      description: Параметры фильтрации списка
+      type:
+      - array
+      items:
+        type: object
+        properties:
+          property:
+            type:
+            - string
+            enum:
+              - uuid
+              - settings_sname
+              - settings_name
+              - settings_inn_of_subject
+              - settings_kpp
+              - settings_brand_name
+              - settings_site_url
+              - settings_zipcode
+              - settings_city
+              - settings_address
+              - settings_actual_same_as_legal_address
+              - settings_actual_zipcode
+              - settings_actual_city
+              - settings_actual_address
+              - settings_mail_same_as_actual_address
+              - settings_mail_zipcode
+              - settings_mail_city
+              - settings_mail_address
+              - settings_subject_cii
+              - settings_subject_type
+              - settings_okogu_id
+              - settings_geo_code
+              - settings_notification_email
+            example: "uuid"
+            description: "Поле, по которому будет проводиться фильтрация"
+          operator:
+            type:
+            - string
+            enum: ['=', '>', '<', '>=', '<=', '!=', 'in', 'not in', 'like', 'ilike', 'is null', 'is not null']
+            description: "Оператор, используемый при фильтрации"
+          value:
+            type:
+            - string
+            example: "12967d4c-4f3d-4956-9f1b-e672849959c3"
+            description: "Значение параметра, которое будет сравниваться со значениями выбранного поля в property"
+
+
+    CompaniesFields:
+      description: Список возвращаемых полей, разделенный запятой
+      type:
+            - string
+      enum:
+          - uuid
+          - settings_sname
+          - settings_name
+          - settings_inn_of_subject
+          - settings_kpp
+          - settings_brand_name
+          - settings_site_url
+          - settings_zipcode
+          - settings_city
+          - settings_address
+          - settings_actual_same_as_legal_address
+          - settings_actual_zipcode
+          - settings_actual_city
+          - settings_actual_address
+          - settings_mail_same_as_actual_address
+          - settings_mail_zipcode
+          - settings_mail_city
+          - settings_mail_address
+          - settings_subject_cii
+          - settings_subject_type
+          - settings_okogu_id
+          - settings_geo_code
+          - settings_notification_email
+      default: [ "uuid", "settings_sname", "settings_name", "settings_inn_of_subject", "settings_kpp", "settings_brand_name", "settings_site_url", "settings_zipcode", "settings_city", "settings_address", "settings_actual_same_as_legal_address", "settings_actual_zipcode", "settings_actual_city", "settings_actual_address", "settings_mail_same_as_actual_address", "settings_mail_zipcode", "settings_mail_city", "settings_mail_address", "settings_subject_cii", "settings_subject_type", "settings_okogu_id", "settings_geo_code", "settings_notification_email" ]
+
+    NetworksFilter:
+      title: Filter
+      description: Параметры фильтрации списка
+      type:
+      - array
+      items:
+        type: object
+        properties:
+          property:
+            type:
+            - string
+            enum:
+              - company
+              - uuid
+              - field_address
+              - field_resource_description
+            description: "Поле, по которому будет проводиться фильтрация"
+          operator:
+            type:
+            - string
+            enum: [ '=', '>', '<', '>=', '<=', '!=', 'eq', 'in', 'not in', 'like', 'ilike', 'is null', 'is not null' ]
+            description: "Оператор, используемый при фильтрации"
+          value:
+            type:
+            - string
+            description: "Значение параметра, которое будет сравниваться со значениями выбранного поля в property"
+
+    NetworksPost:
+      title: Сети. Добавление сетей
+      type:
+      - object
+      properties:
+        company:
+          type:
+            - string
+          maxLength: 5000
+          example: "b09da8fd-b50c-4161-88e4-cd7e2f428abb"
+          description: "Уникальный идентификатор организации."
+
+        field_address:
+          type:
+            - string
+          maxLength: 5000
+          example: "1.1.1.1/32"
+          description: "IP адрес/Адрес сети"
+
+        field_resource_description:
+          type:
+            - string
+          maxLength: 5000
+          example: "description"
+          description: "Описание ресурса"
+
+      required:
+        - company
+        - field_address
+
+
+    NetworksPut:
+      title: Сети. Обновление данных о существующей сети
+      type:
+      - object
+      properties:
+        company:
+          type:
+            - string
+          maxLength: 5000
+          example: "b09da8fd-b50c-4161-88e4-cd7e2f428abb"
+          description: "Уникальный идентификатор организации."
+
+        field_address:
+          type:
+            - string
+          maxLength: 5000
+          example: "1.1.1.1/32"
+          description: "IP адрес/Адрес сети"
+
+        field_resource_description:
+          type:
+            - string
+          maxLength: 5000
+          example: "new description"
+          description: "Описание ресурса"
+
+        uuid:
+          type:
+            - string
+          maxLength: 5000
+          example: "8d545cdf-5fcd-4572-b0ba-9efdeec1565a"
+          description: "Уникальный идентификатор сети"
+
+      required:
+        - uuid
+
+    NetworksFields:
+      description: Список возвращаемых полей, разделенный запятой
+      type:
+            - string
+      enum:
+        - company
+        - uuid
+        - field_address
+        - field_resource_description
+      default: ["company", "field_address", "field_resource_description", "uuid"]
+
+
+    DomainsFilter:
+      title: Filter
+      description: Параметры фильтрации списка
+      type:
+      - array
+      items:
+        type: object
+        properties:
+          property:
+            type:
+            - string
+            enum:
+              - company
+              - uuid
+              - field_domain
+              - field_resource_description
+            description: "Поле, по которому будет проводиться фильтрация"
+          operator:
+            type:
+            - string
+            enum: [ '=', '>', '<', '>=', '<=', '!=', 'eq', 'in', 'not in', 'like', 'ilike', 'is null', 'is not null' ]
+            description: "Оператор, используемый при фильтрации"
+          value:
+            type:
+            - string
+            description: "Значение параметра, которое будет сравниваться со значениями выбранного поля в property"
+
+
+    DomainsPost:
+      title: Домены. Добавление доменов
+      type:
+      - object
+      properties:
+        company:
+          type:
+            - string
+          maxLength: 5000
+          example: "b09da8fd-b50c-4161-88e4-cd7e2f428abb"
+          description: "Уникальный идентификатор организации."
+
+        field_domain:
+          type:
+            - string
+          maxLength: 5000
+          example: "romashka.ru"
+          description: "Наименование домена"
+
+        field_resource_description:
+          type:
+            - string
+          maxLength: 5000
+          example: "description"
+          description: "Описание ресурса"
+
+      required:
+        - company
+        - field_domain
+
+
+    DomainsPut:
+      title: Домены. Обновление данных о существующем домене
+      type:
+      - object
+      properties:
+        company:
+          type:
+            - string
+          maxLength: 5000
+          example: "b09da8fd-b50c-4161-88e4-cd7e2f428abb"
+          description: "Уникальный идентификатор организации."
+
+        field_domain:
+          type:
+            - string
+          maxLength: 5000
+          example: "romashka.ru"
+          description: "Наименование домена"
+
+        field_resource_description:
+          type:
+            - string
+          maxLength: 5000
+          example: "new description"
+          description: "Описание ресурса"
+
+        uuid:
+          type:
+            - string
+          maxLength: 5000
+          example: "8d545cdf-5fcd-4572-b0ba-9efdeec1565a"
+          description: "Уникальный идентификатор домена"
+
+      required:
+        - uuid
+
+    DomainsFields:
+      description: Список возвращаемых полей, разделенный запятой
+      type:
+            - string
+      enum:
+        - company
+        - uuid
+        - field_domain
+        - field_resource_description
+      default: ["company", "field_domain", "field_resource_description", "uuid"]
+
+
+    AssetsDelete:
+      title: Удаление сущности
+      type:
+      - object
+      properties:
+        uuid:
+          type:
+            - string
+          description: Значение true в случае создания, false в случае обновления
+          example: 72ba0025-5bad-4acc-b225-224ebd46bd30
+
+    AssetsDeleteResponse:
+      title: Формат ответа от сервера на DELETE
+      type:
+      - object
+      properties:
+        success:
+          type:
+          - boolean
+          description: "Успешность запроса"
+          example: true
+
+        data:
+          type:
+          - array
+          items:
+            type: object
+            properties:
+
+              error:
+                type: boolean
+                description: Успешность выполнения запроса
+                example: false
+
+              id:
+                type: integer
+                description: Внутренний идентификатор объекта
+                example: 1234
+
+
+    AssetsResponseFields:
+      title: Формат ответа от сервера
+      type:
+      - object
+      properties:
+        success:
+          type:
+          - boolean
+          description: "Успешность запроса"
+          example: true
+
+        object:
+          type:
+          - array
+          items:
+            type: object
+            properties:
+
+              created:
+                type: boolean
+                description: Значение true в случае создания, false в случае обновления
+                example: true
+
+              error:
+                type: boolean
+                description: Успешность выполнения запроса
+                example: false
+
+              id:
+                type: integer
+                description: Внутренний идентификатор объекта
+                example: 1234
+
+              uuid:
+                type:
+                - string
+                title: Уникальный идентификатор объекта
+                example: "87e37777-0a7c-4879-888b-86f1d9cdb175"
+
+
+
+
+
+    Limit:
+      title: Limit
+      description: Максимальное количество организаций в ответе
+      type:
+      - integer
+      minimum: 1
+      maximum: 1000
+      example: 10
+      default: 1000
+
+    Start:
+      title: Start
+      description: Порядковый номер элемента, с которого будет начинаться вывод в ответе на запрос. Если не указывать значение offset, то по умолчанию уведомления будут выводиться с 0 элемента
+      type:
+      - integer
+      minimum: 0
+      example: 100
+
+    Sort:
+      title: Sort
+      description: Сортировка списка по полю <sort_field> по возрастанию или по убыванию
+      type:
+      - array
+      items:
+        type: object
+        properties:
+          property:
+            type:
+            - string
+            description: "Наименование поля, по которому будет проводиться сортировка"
+          direction:
+            type:
+            - string
+            enum: ['ASC','DESC']
+            description: "Направление сортировки"
+        required:
+            - property
+            - direction
