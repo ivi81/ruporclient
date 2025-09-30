@@ -9,7 +9,7 @@ type ClientRuporCfg struct {
 	Port          int           `yaml:"port" env:"PORT"`
 	ApiKey        string        `yaml:"apiKey" env:"API_KEY"`
 	UserAgent     string        `yaml:"userAgent" env:"USER_AGENT"`
-	Timeout       time.Duration `yaml:"timeout"`
-	SleepTime     time.Duration `yaml:"sleepTime"`
-	ResponseLimit int           `yaml:"responseLimit"`
+	Timeout       time.Duration `yaml:"timeout" env:"TIMEOUT"`
+	SleepTime     time.Duration `yaml:"sleepTime" env:"SLEEP_TIME"`
+	ResponseLimit int           `yaml:"responseLimit" env:"RESPONCE_LIMIT"`
 }
